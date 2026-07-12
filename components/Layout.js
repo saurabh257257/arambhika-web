@@ -2,9 +2,9 @@ import Head from 'next/head'
 import Link from 'next/link'
 
 export default function Layout({ children, title, description, ogImage, ogUrl }) {
+  const WA = '919315545821'
   const siteTitle = title ? `${title} | Arambhika Enablers` : 'Arambhika Enablers — Nickel Strip & Copper Busbar Manufacturer'
   const metaDesc = description || 'Manufacturer and distributor of nickel strips, copper busbars, and battery connectors. Based in Greater Noida. Serving EV, ESS, and battery pack manufacturers across India.'
-  const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919315545821'
 
   return (
     <>

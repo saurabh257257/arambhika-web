@@ -72,6 +72,7 @@ export default function AdminProducts({ products }) {
                       <td style={{ fontWeight: 600 }}>{p.price ? `₹${p.price}/${p.unit}` : '—'}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          <Link href={`/admin/products/edit/${p.id}`} className="btn-secondary" style={{ padding: '0.3rem 0.65rem', fontSize: '0.78rem' }}>Edit</Link>
                           <Link href={`/store/${p.slug}`} target="_blank" className="btn-secondary" style={{ padding: '0.3rem 0.65rem', fontSize: '0.78rem' }}>View ↗</Link>
                           <button onClick={() => handleDelete(p.id, p.name)} className="btn-danger">Delete</button>
                         </div>
