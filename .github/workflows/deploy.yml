@@ -1,0 +1,24 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd /var/www/arambhika-web
+            git pull origin master
+            npm install --production=false
+            npm run build
+            pm2 restart arambhika-web || pm2 start npm --name arambhika-web -- start
+            pm2 save
