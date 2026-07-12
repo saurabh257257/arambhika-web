@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Layout from '../../components/Layout'
 import { getAllProducts, getCategories } from '../../lib/db'
@@ -82,6 +82,18 @@ export default function Store({ products, categories, activeCategory }) {
   const [search, setSearch] = useState('')
   const [quote, setQuote] = useState([])
   const [mobile, setMobile] = useState('')
+  const [showQuote, setShowQuote] = useState(false)
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('arambhika_quote')
+      if (saved) setQuote(JSON.parse(saved))
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    try { localStorage.setItem('arambhika_quote', JSON.stringify(quote)) } catch {}
+  }, [quote])
 
   const filtered = products.filter(p => {
     const q = search.toLowerCase()
@@ -171,9 +183,36 @@ export default function Store({ products, categories, activeCategory }) {
         </aside>
       </div>
 
-      <button className="sc-float-btn" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+      <button className="sc-float-btn" onClick={() => setShowQuote(v => !v)}>
         View Quote ({quote.length})
       </button>
+
+      {showQuote && (
+        <div className="mobile-quote-drawer">
+          <div className="mobile-quote-header">
+            <span className="sc-quote-title">View Quote</span>
+            <button onClick={() => setShowQuote(false)} className="sc-quote-clear">✕ Close</button>
+          </div>
+          {quote.length === 0 ? (
+            <p className="sc-quote-empty">No items yet.</p>
+          ) : (
+            <ul className="sc-quote-list">
+              {quote.map(item => (
+                <li key={item.id} className="sc-quote-item">
+                  <div>
+                    <strong>{item.name}</strong><br />
+                    <span className="sc-quote-qty">{item.qty} {item.unit || 'unit'}</span>
+                  </div>
+                  <button className="sc-quote-remove" onClick={() => setQuote(q => q.filter(x => x.id !== item.id))}>✕</button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <input className="sc-phone-input" type="tel" placeholder="Mobile number"
+            value={mobile} onChange={e => setMobile(e.target.value)} style={{ marginTop: '0.75rem' }} />
+          <button className="sc-proceed-btn" style={{ marginTop: '0.5rem' }} onClick={proceedWhatsApp}>Proceed on WhatsApp</button>
+        </div>
+      )}
 
     </Layout>
   )
