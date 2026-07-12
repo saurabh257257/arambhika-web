@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Link from 'next/link'
 import Layout from '../../components/Layout'
 import { getProductBySlug } from '../../lib/db'
@@ -5,6 +6,8 @@ import { getProductBySlug } from '../../lib/db'
 const WA = '919315545821'
 
 export default function ProductPage({ product, siteUrl }) {
+  const [imgIdx, setImgIdx] = useState(0)
+
   if (!product) return null
 
   const images = JSON.parse(product.images || '[]')
@@ -60,7 +63,20 @@ export default function ProductPage({ product, siteUrl }) {
           <div className="pd-img-col">
             <div className="pd-carousel">
               {images.length > 0 ? (
-                <img src={images[0]} alt={product.name} className="pd-img-main" />
+                <>
+                  <img src={images[imgIdx]} alt={`${product.name} - image ${imgIdx + 1}`} className="pd-img-main" />
+                  {images.length > 1 && (
+                    <>
+                      <button className="sc-arrow sc-arrow-l" onClick={() => setImgIdx(i => (i - 1 + images.length) % images.length)}>&#8249;</button>
+                      <button className="sc-arrow sc-arrow-r" onClick={() => setImgIdx(i => (i + 1) % images.length)}>&#8250;</button>
+                      <div className="sc-dots">
+                        {images.map((_, i) => (
+                          <span key={i} className={`sc-dot${i === imgIdx ? ' active' : ''}`} onClick={() => setImgIdx(i)} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </>
               ) : (
                 <div className="pd-img-empty">No image uploaded</div>
               )}
@@ -68,7 +84,9 @@ export default function ProductPage({ product, siteUrl }) {
             {images.length > 1 && (
               <div className="pd-thumbs">
                 {images.map((img, i) => (
-                  <img key={i} src={img} alt={`${product.name} ${i + 1}`} className="pd-thumb" />
+                  <img key={i} src={img} alt={`${product.name} ${i + 1}`}
+                    className={`pd-thumb${i === imgIdx ? ' active' : ''}`}
+                    onClick={() => setImgIdx(i)} />
                 ))}
               </div>
             )}

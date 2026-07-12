@@ -258,7 +258,8 @@ a { color: inherit; text-decoration: none; }
 .sc-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
 
 /* Carousel */
-.sc-img-wrap { position: relative; width: 220px; min-height: 180px; background: var(--off); flex-shrink: 0; }
+.sc-img-wrap { position: relative; width: 220px; min-height: 180px; background: var(--off); flex-shrink: 0; display: block; text-decoration: none; cursor: pointer; }
+.sc-name-link { text-decoration: none; color: inherit; }
 .sc-img { width: 100%; height: 180px; object-fit: cover; display: block; }
 .sc-img-empty { width: 220px; height: 180px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 0.85rem; }
 .sc-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.45); color: #fff; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; line-height: 1; display: flex; align-items: center; justify-content: center; z-index: 2; }
