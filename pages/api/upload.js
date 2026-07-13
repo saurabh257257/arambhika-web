@@ -11,8 +11,11 @@ function ensureUploadDir() {
   if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true })
 }
 
-function sanitizeFilename(name) {
-  return name.replace(/[^a-zA-Z0-9._-]/g, '_').toLowerCase()
+function slugify(text) {
+  return text.toString().toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '')
+    .slice(0, 60)
 }
 
 export default async function handler(req, res) {
@@ -26,7 +29,7 @@ export default async function handler(req, res) {
   const form = formidable({
     uploadDir: UPLOAD_DIR,
     keepExtensions: true,
-    maxFileSize: 10 * 1024 * 1024, // 10MB
+    maxFileSize: 10 * 1024 * 1024,
   })
 
   form.parse(req, (err, fields, files) => {
@@ -35,21 +38,28 @@ export default async function handler(req, res) {
     const file = files.file?.[0] || files.file
     if (!file) return res.status(400).json({ error: 'No file uploaded' })
 
-    // Rename to something clean
-    const ext = path.extname(file.originalFilename || '.jpg')
-    const base = sanitizeFilename(path.basename(file.originalFilename || 'image', ext))
-    const timestamp = Date.now()
-    const newName = `${base}-${timestamp}${ext}`
-    const newPath = path.join(UPLOAD_DIR, newName)
+    const ext = path.extname(file.originalFilename || '.jpg').toLowerCase() || '.jpg'
 
+    // Auto-name: {SKU}_{slugified-name}_{index}.ext  (e.g. NPT1_nickel_strip_plated_1.jpg)
+    const prefix   = Array.isArray(fields.prefix)   ? fields.prefix[0]   : (fields.prefix || '')
+    const imgIndex = Array.isArray(fields.imgIndex) ? fields.imgIndex[0] : (fields.imgIndex || '1')
+
+    let newName
+    if (prefix) {
+      newName = `${slugify(prefix)}_${imgIndex}${ext}`
+      // Avoid overwriting: append timestamp if file exists
+      if (fs.existsSync(path.join(UPLOAD_DIR, newName))) {
+        newName = `${slugify(prefix)}_${imgIndex}_${Date.now()}${ext}`
+      }
+    } else {
+      const base = slugify(path.basename(file.originalFilename || 'image', ext))
+      newName = `${base}_${Date.now()}${ext}`
+    }
+
+    const newPath = path.join(UPLOAD_DIR, newName)
     fs.renameSync(file.filepath, newPath)
 
-    const siteUrl = process.env.SITE_URL || 'http://localhost:3000'
     const url = `/uploads/${newName}`
-
-    return res.status(200).json({
-      url,
-      fullUrl: `${siteUrl}${url}`,
-    })
+    return res.status(200).json({ url, name: newName })
   })
 }

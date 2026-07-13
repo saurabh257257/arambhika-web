@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   if (req.method === 'PUT') {
     const {
       name, sku, category, price, unit, min_qty, description,
-      specs, images, sort_order, availability, condition, material, dimensions,
+      specs, images, sort_order, availability, condition, material, dimensions, brand,
     } = req.body
     if (!name || !category) return res.status(400).json({ error: 'Name and category required' })
     try {
@@ -34,6 +34,7 @@ export default async function handler(req, res) {
         condition: condition || 'new',
         material: material || null,
         dimensions: dimensions || null,
+        brand: brand || 'Arambhika Enablers',
       })
       return res.status(200).json({ ok: true })
     } catch (err) {
