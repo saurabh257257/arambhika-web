@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { getSession } from '../../../lib/session'
-import { getAllProducts } from '../../../lib/db'
 
 const CATEGORIES = [
   'Nickel Strip Plated',
