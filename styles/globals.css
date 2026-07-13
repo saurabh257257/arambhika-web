@@ -472,3 +472,78 @@ a { color: inherit; text-decoration: none; }
   .hero { padding: 3rem 1rem; }
   .hero h1 { font-size: 1.6rem; }
 }
+
+/* ══════════════════════════════════════
+   Admin Spreadsheet — Products Page
+══════════════════════════════════════ */
+.pg-topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.pg-search { border: 1.5px solid var(--border); border-radius: 7px; padding: 0.4rem 0.8rem; font-size: 0.85rem; min-width: 180px; }
+.pg-search:focus { border-color: var(--accent); outline: none; }
+
+.pg-sheet { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+.pg-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+.pg-table th {
+  background: var(--navy); color: #fff; padding: 0.55rem 0.6rem;
+  text-align: left; font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+  position: sticky; top: 0; z-index: 10;
+}
+.pg-table td { border-bottom: 1px solid var(--border); padding: 0.3rem 0.4rem; vertical-align: middle; }
+.pg-table tbody tr:hover > td { background: #f0f7ff; }
+.pg-table tbody tr.pg-tr-new > td { background: #f0fff4; }
+
+.pg-input {
+  width: 100%; border: 1px solid transparent; background: transparent;
+  border-radius: 4px; padding: 0.28rem 0.4rem; font-size: 0.82rem;
+  color: inherit; font-family: inherit; min-width: 0;
+}
+.pg-input:focus { border-color: var(--accent); background: #fff; outline: none; box-shadow: 0 0 0 2px rgba(26,111,196,0.12); }
+.pg-input-full { width: 100%; display: block; border: 1px solid var(--border); background: #fff; }
+
+.pg-select {
+  width: 100%; border: 1px solid transparent; background: transparent;
+  border-radius: 4px; padding: 0.28rem 0.35rem; font-size: 0.82rem;
+  color: inherit; font-family: inherit; cursor: pointer;
+}
+.pg-select:focus { border-color: var(--accent); background: #fff; outline: none; }
+
+.pg-sort-input {
+  width: 45px; border: 1px solid transparent; background: transparent;
+  border-radius: 4px; padding: 0.28rem; text-align: center; font-size: 0.82rem; font-family: inherit;
+}
+.pg-sort-input:focus { border-color: var(--accent); background: #fff; outline: none; }
+
+/* Image cell */
+.pg-img-cell { display: flex; align-items: center; gap: 0.4rem; }
+.pg-thumb { width: 38px; height: 38px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); flex-shrink: 0; }
+.pg-no-img { width: 38px; height: 38px; background: var(--off); border-radius: 4px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--muted); flex-shrink: 0; }
+.pg-manage-btn { font-size: 0.72rem; color: var(--accent); cursor: pointer; background: none; border: 1px solid var(--accent); border-radius: 3px; padding: 0.15rem 0.4rem; white-space: nowrap; }
+.pg-manage-btn:hover { background: var(--accent); color: #fff; }
+
+/* Expanded rows */
+.pg-expanded-cell { padding: 1rem 1.25rem; background: #f8fafc; }
+.pg-exp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.pg-field-label { font-size: 0.73rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; display: block; }
+.pg-textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 5px; padding: 0.5rem 0.6rem; font-size: 0.82rem; font-family: inherit; color: inherit; min-height: 80px; resize: vertical; }
+.pg-textarea:focus { border-color: var(--accent); outline: none; }
+
+/* Image manager */
+.pg-img-manager { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.25rem; }
+.pg-img-item { position: relative; }
+.pg-img-item img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); display: block; }
+.pg-img-remove { position: absolute; top: -7px; right: -7px; background: #ef4444; color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.65rem; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; }
+.pg-upload-btn { background: var(--off); border: 1.5px dashed var(--border); border-radius: 6px; padding: 0.5rem 0.9rem; font-size: 0.8rem; color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; height: 72px; display: flex; align-items: center; }
+.pg-upload-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Specs mini */
+.pg-specs-mini { display: flex; flex-direction: column; gap: 0.4rem; }
+.pg-spec-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.4rem; align-items: center; }
+
+/* Action buttons */
+.pg-expand-btn { background: none; border: none; cursor: pointer; color: var(--muted); padding: 0.25rem 0.4rem; font-size: 0.9rem; line-height: 1; }
+.pg-expand-btn:hover { color: var(--accent); }
+.pg-save-btn { background: #16a34a; color: #fff; border: none; border-radius: 5px; padding: 0.3rem 0.6rem; font-size: 0.76rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.pg-save-btn:disabled { opacity: 0.35; cursor: default; }
+.pg-del-btn { background: none; border: 1.5px solid #ef4444; color: #ef4444; border-radius: 5px; padding: 0.28rem 0.5rem; font-size: 0.76rem; cursor: pointer; }
+.pg-del-btn:hover { background: #ef4444; color: #fff; }
+.pg-view-btn { background: none; border: 1.5px solid var(--border); color: var(--muted); border-radius: 5px; padding: 0.28rem 0.5rem; font-size: 0.76rem; cursor: pointer; text-decoration: none; }
+.pg-view-btn:hover { border-color: var(--accent); color: var(--accent); }
