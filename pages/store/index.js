@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Layout from '../../components/Layout'
-import { getAllProducts, getCategories } from '../../lib/db'
 
 const WA = '919315545821'
 
@@ -220,15 +219,31 @@ export default function Store({ products, categories, activeCategory }) {
 
 export async function getServerSideProps({ query }) {
   try {
-    const category = query.category || null
-    const products = getAllProducts(category)
-    const categories = getCategories()
+    const { getAllProductsSorted, getCategoriesOrdered } = require('../../lib/db')
+    const activeCategory = query.category || null
+    const allProducts = getAllProductsSorted()
+    const catData = getCategoriesOrdered()
+
+    // Build ordered category list
+    const catOrder = catData.map(c => c.category)
+    // Fill any category not yet in the order table
+    allProducts.forEach(p => { if (p.category && !catOrder.includes(p.category)) catOrder.push(p.category) })
+
+    const products = activeCategory
+      ? allProducts.filter(p => p.category === activeCategory)
+      : allProducts
+
+    // Categories for sidebar filter, in sorted order
+    const categories = catOrder
+      .filter(c => allProducts.some(p => p.category === c))
+      .map(c => ({ category: c }))
+
     const siteUrl = process.env.SITE_URL || 'http://168.144.189.151'
     return {
       props: {
         products: products.map(p => ({ ...p })),
         categories,
-        activeCategory: category,
+        activeCategory,
         siteUrl,
       },
     }

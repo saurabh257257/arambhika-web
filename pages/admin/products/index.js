@@ -104,7 +104,7 @@ function SpecsEditor({ specs, onChange }) {
 }
 
 // ── Product Row ───────────────────────────────────────────────────────────────
-function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isFirst, isLast, siteUrl }) {
+function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isFirst, isLast, siteUrl, allCategories }) {
   const f = (field, val) => onUpdate(row.id, { [field]: val, _dirty: true })
   const firstImg = row.images[0]
 
@@ -139,13 +139,22 @@ function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isF
         </td>
 
         {/* title */}
-        <td style={{ minWidth: 180 }}>
+        <td style={{ minWidth: 160 }}>
           <input className="pg-input" value={row.name || ''} placeholder="Product name *"
             onChange={e => f('name', e.target.value)} />
         </td>
 
+        {/* category — always visible so new products can be assigned */}
+        <td style={{ width: 150 }}>
+          <select className="pg-select" value={row.category || ''} onChange={e => f('category', e.target.value)}
+            style={{ fontSize: '0.78rem', borderColor: !row.category ? '#f59e0b' : 'transparent' }}>
+            <option value="">— pick category —</option>
+            {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </td>
+
         {/* description (truncated) */}
-        <td style={{ minWidth: 160 }}>
+        <td style={{ minWidth: 140 }}>
           <input className="pg-input" value={row.description || ''} placeholder="Description…"
             onChange={e => f('description', e.target.value)}
             title={row.description || ''}
@@ -211,7 +220,7 @@ function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isF
       {/* Image manager */}
       {row._imgOpen && (
         <tr>
-          <td colSpan={11} className="pg-expanded-cell" style={{ background: '#fffbeb', borderBottom: '2px solid #fcd34d' }}>
+          <td colSpan={12} className="pg-expanded-cell" style={{ background: '#fffbeb', borderBottom: '2px solid #fcd34d' }}>
             <p className="pg-field-label" style={{ marginBottom: '0.5rem' }}>
               Images &nbsp;
               <span style={{ fontWeight: 400, color: '#6b7280', textTransform: 'none' }}>
@@ -227,7 +236,7 @@ function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isF
       {/* Expanded details */}
       {row._expanded && (
         <tr>
-          <td colSpan={11} className="pg-expanded-cell">
+          <td colSpan={12} className="pg-expanded-cell">
             <div className="pg-exp-grid">
               <div>
                 <p className="pg-field-label">Min Qty</p>
@@ -323,13 +332,15 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
   const addRow = () => {
     const tempId = newTempId()
     setRows(prev => [initRow({
-      id: tempId, name: '', sku: '', category: catOrder[0] || '', price: '',
+      id: tempId, name: '', sku: '', category: '', price: '',
       unit: 'KG', min_qty: '', description: '', specs: [], images: [],
       sort_order: 0, availability: 'in stock', condition: 'new',
       brand: 'Arambhika Enablers', material: '', dimensions: '', slug: '',
       _isNew: true, _dirty: true, _expanded: true,
     }), ...prev])
   }
+
+  const downloadExcel = () => { window.location.href = '/api/admin/export' }
 
   // ── Category ordering ────────────────────────────────────────────────────────
   const moveCategoryUp = (cat) => {
@@ -439,6 +450,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
           <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <input className="pg-search" type="text" placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)} />
             <button className="btn btn-primary" onClick={addRow}>+ Add Product</button>
+            <button className="btn-secondary" onClick={downloadExcel}>⬇ Download Excel</button>
             <button className="btn-secondary" onClick={runSeed} disabled={seeding}>
               {seeding ? 'Importing…' : '⬆ Seed from Excel'}
             </button>
@@ -484,7 +496,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
             <tbody>
               {/* New unsaved rows first */}
               {newRows.map((row) => (
-                <ProductRow key={row.id} row={row} siteUrl={siteUrl}
+                <ProductRow key={row.id} row={row} siteUrl={siteUrl} allCategories={catOrder}
                   onUpdate={updateRow} onSave={saveRow} onDelete={deleteRow}
                   onMoveUp={() => {}} onMoveDown={() => {}}
                   isFirst={true} isLast={true} />
@@ -502,7 +514,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
                     onUpdateRow={updateRow} onSaveRow={saveRow} onDeleteRow={deleteRow}
                     onMoveProductUp={(idx) => moveProductUp(cat, idx)}
                     onMoveProductDown={(idx) => moveProductDown(cat, idx)}
-                    siteUrl={siteUrl} />
+                    siteUrl={siteUrl} allCategories={catOrder} />
                 )
               })}
             </tbody>
@@ -520,12 +532,12 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
 // ── Category group rows ───────────────────────────────────────────────────────
 function CatGroup({ cat, catRows, isFirst, isLast, onMoveUp, onMoveDown,
                     onUpdateRow, onSaveRow, onDeleteRow,
-                    onMoveProductUp, onMoveProductDown, siteUrl }) {
+                    onMoveProductUp, onMoveProductDown, siteUrl, allCategories }) {
   const [collapsed, setCollapsed] = useState(false)
   return (
     <>
       <tr className="pg-cat-header">
-        <td colSpan={11}>
+        <td colSpan={12}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <button className="pg-move-btn pg-cat-move" disabled={isFirst}  onClick={onMoveUp}>▲</button>
@@ -540,7 +552,7 @@ function CatGroup({ cat, catRows, isFirst, isLast, onMoveUp, onMoveDown,
         </td>
       </tr>
       {!collapsed && catRows.map((row, idx) => (
-        <ProductRow key={row.id} row={row} siteUrl={siteUrl}
+        <ProductRow key={row.id} row={row} siteUrl={siteUrl} allCategories={allCategories}
           onUpdate={onUpdateRow} onSave={onSaveRow} onDelete={onDeleteRow}
           onMoveUp={() => onMoveProductUp(idx)}
           onMoveDown={() => onMoveProductDown(idx)}
