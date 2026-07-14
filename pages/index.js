@@ -21,14 +21,20 @@ export default function Home({ featured, categories, settings }) {
 
       {/* Categories */}
       {categories.length > 0 && (
-        <section className="section">
+        <section className="section" style={{ paddingBottom: '2rem' }}>
           <div className="container">
             <h2 className="section-title">Product Categories</h2>
             <p className="section-sub">Click a category to browse products</p>
-            <div className="category-grid">
+            <div className="cat-card-row">
               {categories.map(c => (
-                <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`} className="cat-chip">
-                  {c.category}
+                <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`} className="cat-card">
+                  <div className="cat-card-img-wrap">
+                    {c.image
+                      ? <img src={c.image} alt={c.category} className="cat-card-img" loading="lazy" />
+                      : <div className="cat-card-img-placeholder">{c.category.slice(0, 2).toUpperCase()}</div>
+                    }
+                  </div>
+                  <span className="cat-card-label">{c.category}</span>
                 </Link>
               ))}
             </div>
@@ -115,7 +121,9 @@ export async function getServerSideProps() {
     return {
       props: {
         featured: allProducts.slice(0, 8).map(p => ({ ...p })),
-        categories: catOrder.filter(c => allProducts.some(p => p.category === c)).map(c => ({ category: c })),
+        categories: catData
+          .filter(c => allProducts.some(p => p.category === c.category))
+          .map(c => ({ category: c.category, image: c.image || null })),
         settings,
       },
     }

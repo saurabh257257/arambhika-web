@@ -182,10 +182,13 @@ export default function Store({ products, categories, activeCategory, settings }
       <div className="sc-layout">
         <aside className="sc-sidebar">
           <h3 className="sc-sidebar-title">Categories</h3>
-          <Link href="/store" className={`sc-cat-item${!activeCategory ? ' active' : ''}`}>All</Link>
+          <Link href="/store" className={`sc-cat-item${!activeCategory ? ' active' : ''}`}>
+            All Products
+          </Link>
           {categories.map(c => (
             <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
               className={`sc-cat-item${activeCategory === c.category ? ' active' : ''}`}>
+              {c.image && <img src={c.image} alt="" className="sc-cat-thumb" />}
               {c.category}
             </Link>
           ))}
@@ -241,7 +244,10 @@ export async function getServerSideProps({ query }) {
     allProducts.forEach(p => { if (p.category && !catOrder.includes(p.category)) catOrder.push(p.category) })
 
     const products   = activeCategory ? allProducts.filter(p => p.category === activeCategory) : allProducts
-    const categories = catOrder.filter(c => allProducts.some(p => p.category === c)).map(c => ({ category: c }))
+    const catImageMap = Object.fromEntries(catData.map(c => [c.category, c.image || null]))
+    const categories = catOrder
+      .filter(c => allProducts.some(p => p.category === c))
+      .map(c => ({ category: c, image: catImageMap[c] || null }))
 
     return {
       props: {

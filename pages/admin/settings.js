@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { getSession } from '../../lib/session'
 
@@ -60,11 +60,29 @@ const SECTIONS = [
 ]
 
 export default function AdminSettings({ initialSettings }) {
-  const [vals, setVals]     = useState(initialSettings)
-  const [saving, setSaving] = useState(false)
-  const [msg, setMsg]       = useState('')
+  const [vals, setVals]         = useState(initialSettings)
+  const [saving, setSaving]     = useState(false)
+  const [msg, setMsg]           = useState('')
+  const [logoUploading, setLogoUploading] = useState(false)
+  const logoFileRef             = useRef(null)
 
   const set = (key, value) => setVals(v => ({ ...v, [key]: value }))
+
+  const uploadLogo = async () => {
+    const file = logoFileRef.current?.files[0]
+    if (!file) return
+    setLogoUploading(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('prefix', 'brand_logo')
+    fd.append('imgIndex', '1')
+    const r = await fetch('/api/upload', { method: 'POST', body: fd })
+    const d = await r.json()
+    setLogoUploading(false)
+    if (!r.ok) { alert(d.error || 'Upload failed'); return }
+    set('brand_logo', d.url)
+    logoFileRef.current.value = ''
+  }
 
   const save = async () => {
     setSaving(true); setMsg('')
@@ -128,6 +146,26 @@ export default function AdminSettings({ initialSettings }) {
                       rows={4}
                       onChange={e => set(field.key, e.target.value)}
                     />
+                  ) : field.key === 'brand_logo' ? (
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <input
+                        className="settings-input"
+                        style={{ flex: 1, minWidth: 180 }}
+                        type="text"
+                        value={vals.brand_logo || ''}
+                        placeholder={field.placeholder}
+                        onChange={e => set('brand_logo', e.target.value)}
+                      />
+                      <input type="file" accept="image/*" style={{ display: 'none' }} ref={logoFileRef} onChange={uploadLogo} />
+                      <button className="btn btn-primary btn-sm" type="button"
+                        disabled={logoUploading}
+                        onClick={() => logoFileRef.current?.click()}>
+                        {logoUploading ? 'Uploading…' : '↑ Upload'}
+                      </button>
+                      {vals.brand_logo && (
+                        <img src={vals.brand_logo} alt="Logo preview" style={{ height: 36, borderRadius: 4, border: '1px solid var(--border)', objectFit: 'contain', background: '#f9fafb' }} />
+                      )}
+                    </div>
                   ) : (
                     <input
                       className="settings-input"
