@@ -543,8 +543,8 @@ a { color: inherit; text-decoration: none; }
   .nav-hamburger { display: flex; }
 
   /* Store layout — stacked */
-  .sc-layout { grid-template-columns: 1fr; }
-  .sc-layout2 { grid-template-columns: 1fr; }
+  .sc-layout { grid-template-columns: 1fr; overflow-x: hidden; }
+  .sc-layout2 { grid-template-columns: 1fr; overflow-x: hidden; }
   .sc-searchbar-sticky { top: 56px; padding: 0.45rem 0.75rem; }
   .sc-catbar-wrap { position: relative; top: auto; margin: 0; padding: 0; overflow: visible; }
   .sc-catbar-arrow { display: none; }

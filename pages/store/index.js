@@ -285,7 +285,6 @@ export default function Store({ products, categories, activeCategory, settings }
         <SearchBox products={products} search={search} setSearch={setSearch} />
       </div>
 
-      <div style={{ overflowX: 'hidden' }}>
       <div className="sc-layout2">
         <main className="sc-main2">
           {/* Sticky category strip inside product column */}
@@ -327,7 +326,6 @@ export default function Store({ products, categories, activeCategory, settings }
             onQtyChange={(item, qty) => upsertQuote(item, qty)}
             onClear={() => setQuote([])} />
         </aside>
-      </div>
       </div>
 
       {/* Mobile floating button */}
