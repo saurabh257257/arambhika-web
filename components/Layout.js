@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 
 export default function Layout({ children, title, description, ogImage, ogUrl, settings = {} }) {
+  const [menuOpen, setMenuOpen] = useState(false)
   const brandName  = settings.brand_name    || 'Arambhika Enablers'
   const tagline    = settings.brand_tagline || 'Nickel & Copper Battery Connectors'
   const brandLogo  = settings.brand_logo    || ''
@@ -35,7 +37,7 @@ export default function Layout({ children, title, description, ogImage, ogUrl, s
 
       <header className="site-header">
         <div className="nav-inner">
-          <Link href="/" className="nav-logo">
+          <Link href="/" className="nav-logo" onClick={() => setMenuOpen(false)}>
             {brandLogo
               ? <img src={brandLogo} alt={brandName} style={{ height: 40, objectFit: 'contain' }} />
               : <>{brandName.split(' ')[0]} <span>{brandName.split(' ').slice(1).join(' ')}</span></>
@@ -53,8 +55,23 @@ export default function Layout({ children, title, description, ogImage, ogUrl, s
             <a href={`https://wa.me/${WA}`} className="btn-wa-nav" target="_blank" rel="noopener noreferrer">
               WhatsApp Order
             </a>
+            <button className="nav-hamburger" onClick={() => setMenuOpen(v => !v)} aria-label="Menu">
+              <span /><span /><span />
+            </button>
           </div>
         </div>
+        {/* Mobile menu drawer */}
+        {menuOpen && (
+          <div className="nav-mobile-menu" onClick={() => setMenuOpen(false)}>
+            <Link href="/">Home</Link>
+            <Link href="/store">Store</Link>
+            <Link href="/blogs">Blogs</Link>
+            <Link href="/about">About Us</Link>
+            <a href={`https://wa.me/${WA}`} className="nav-mobile-wa" target="_blank" rel="noopener noreferrer">
+              WhatsApp Order
+            </a>
+          </div>
+        )}
       </header>
 
       <main>{children}</main>
