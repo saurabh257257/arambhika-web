@@ -174,27 +174,29 @@ export default function Store({ products, categories, activeCategory, settings }
   return (
     <Layout title="Product Store" settings={settings}
       description="Browse our full catalog of nickel strips, copper busbars, and battery connectors.">
-      <div className="sc-searchbar-wrap">
-        <input className="sc-searchbar" type="text" placeholder="Search products..."
-          value={search} onChange={e => setSearch(e.target.value)} />
-      </div>
 
-      <div className="sc-layout">
-        <aside className="sc-sidebar">
-          <h3 className="sc-sidebar-title">Categories</h3>
-          <Link href="/store" className={`sc-cat-item${!activeCategory ? ' active' : ''}`}>
-            All Products
+      {/* Sticky top bar: search + category strip */}
+      <div className="sc-topbar-sticky">
+        <div className="sc-searchbar-wrap">
+          <input className="sc-searchbar" type="text" placeholder="Search products..."
+            value={search} onChange={e => setSearch(e.target.value)} />
+        </div>
+        <div className="sc-catbar">
+          <Link href="/store" className={`sc-catbar-item${!activeCategory ? ' active' : ''}`}>
+            All
           </Link>
           {categories.map(c => (
             <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
-              className={`sc-cat-item${activeCategory === c.category ? ' active' : ''}`}>
-              {c.image && <img src={c.image} alt="" className="sc-cat-thumb" />}
+              className={`sc-catbar-item${activeCategory === c.category ? ' active' : ''}`}>
+              {c.image && <img src={c.image} alt="" className="sc-catbar-thumb" />}
               {c.category}
             </Link>
           ))}
-        </aside>
+        </div>
+      </div>
 
-        <main className="sc-main">
+      <div className="sc-layout2">
+        <main className="sc-main2">
           {filtered.length === 0 ? (
             <div className="empty-state">
               <h3>No products found</h3>

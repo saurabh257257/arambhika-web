@@ -109,6 +109,7 @@ export default function Home({ featured, categories, settings }) {
 }
 
 export async function getServerSideProps() {
+  return { redirect: { destination: '/store', permanent: false } }
   try {
     const { getAllProductsSorted, getCategoriesOrdered, getSettings } = require('../lib/db')
     const allProducts = getAllProductsSorted()
