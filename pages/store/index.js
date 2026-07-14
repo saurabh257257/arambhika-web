@@ -225,6 +225,32 @@ export default function Store({ products, categories, activeCategory, settings }
   useEffect(() => { setQuote(loadQuote()) }, [])
   useEffect(() => { saveQuote(quote) }, [quote])
 
+  // Intercept horizontal touch on catbar so page doesn't scroll instead
+  useEffect(() => {
+    const el = catbarRef.current
+    if (!el) return
+    let startX = 0, startY = 0
+    const onStart = (e) => {
+      startX = e.touches[0].clientX
+      startY = e.touches[0].clientY
+    }
+    const onMove = (e) => {
+      const dx = Math.abs(e.touches[0].clientX - startX)
+      const dy = Math.abs(e.touches[0].clientY - startY)
+      if (dx > dy && dx > 5) {
+        e.preventDefault()
+        el.scrollLeft += startX - e.touches[0].clientX
+        startX = e.touches[0].clientX
+      }
+    }
+    el.addEventListener('touchstart', onStart, { passive: true })
+    el.addEventListener('touchmove', onMove, { passive: false })
+    return () => {
+      el.removeEventListener('touchstart', onStart)
+      el.removeEventListener('touchmove', onMove)
+    }
+  }, [])
+
   const upsertQuote = useCallback((product, qty) => {
     setQuote(prev => {
       const idx = prev.findIndex(x => x.id === product.id)
@@ -259,6 +285,7 @@ export default function Store({ products, categories, activeCategory, settings }
         <SearchBox products={products} search={search} setSearch={setSearch} />
       </div>
 
+      <div style={{ overflowX: 'hidden' }}>
       <div className="sc-layout2">
         <main className="sc-main2">
           {/* Sticky category strip inside product column */}
@@ -300,6 +327,7 @@ export default function Store({ products, categories, activeCategory, settings }
             onQtyChange={(item, qty) => upsertQuote(item, qty)}
             onClear={() => setQuote([])} />
         </aside>
+      </div>
       </div>
 
       {/* Mobile floating button */}
