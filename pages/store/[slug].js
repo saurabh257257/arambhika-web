@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
-import { getProductBySlug } from '../../lib/db'
 
-const WA = '919315545821'
-
-export default function ProductPage({ product, siteUrl }) {
+export default function ProductPage({ product, siteUrl, settings = {} }) {
+  const WA = settings.wa_number || '919315545821'
   const router = useRouter()
   const [imgIdx, setImgIdx] = useState(0)
   const [copied, setCopied] = useState(false)
@@ -30,6 +28,7 @@ export default function ProductPage({ product, siteUrl }) {
   const images = JSON.parse(product.images || '[]')
   const specs = JSON.parse(product.specs || '[]')
   const pageUrl = `${siteUrl}/store/${product.slug}`
+  const minQty = Number(product.min_qty) || 1
 
   const metaDesc = product.description
     ? `${product.description} | Price: ₹${product.price}/${product.unit} | Min Qty: ${product.min_qty} ${product.unit}`
@@ -47,17 +46,30 @@ export default function ProductPage({ product, siteUrl }) {
     navigator.clipboard.writeText(pageUrl).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
   }
 
-  function addToQuote() {
-    const minQty = Number(product.min_qty) || 1
+  const inQuote = quote.find(x => x.id === product.id)
+  const currentQty = inQuote ? inQuote.qty : minQty
+
+  function upsertQuote(qty) {
     setQuote(prev => {
       const idx = prev.findIndex(x => x.id === product.id)
-      if (idx >= 0) return prev
-      return [...prev, { ...product, qty: minQty }]
+      if (idx >= 0) {
+        const next = [...prev]; next[idx] = { ...next[idx], qty }; return next
+      }
+      return [...prev, { ...product, qty }]
     })
+  }
+
+  function changeQty(delta) {
+    const next = Math.max(minQty, currentQty + delta)
+    upsertQuote(next)
   }
 
   function removeFromQuote(id) {
     setQuote(prev => prev.filter(x => x.id !== id))
+  }
+
+  function updateItemQty(item, qty) {
+    setQuote(prev => prev.map(x => x.id === item.id ? { ...x, qty } : x))
   }
 
   function proceedWhatsApp() {
@@ -71,7 +83,7 @@ export default function ProductPage({ product, siteUrl }) {
   const waMsg = encodeURIComponent(`Hi, I want to order:\n• ${product.name}${product.sku ? ` (${product.sku})` : ''}\n\nProduct page: ${pageUrl}`)
 
   return (
-    <Layout title={product.name} description={metaDesc} ogImage={images[0] || null} ogUrl={pageUrl}>
+    <Layout title={product.name} description={metaDesc} ogImage={images[0] || null} ogUrl={pageUrl} settings={settings}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Breadcrumb / back */}
@@ -156,8 +168,15 @@ export default function ProductPage({ product, siteUrl }) {
               )}
 
               <div className="pd-cta-row">
-                <button className="sc-add-btn pd-add-quote-btn" onClick={addToQuote}>
-                  {quote.some(x => x.id === product.id) ? '✓ In Quote' : 'Add to Quote'}
+                <div className="sc-qty" style={{ height: 48 }}>
+                  <button onClick={() => changeQty(-1)} style={{ fontSize: '1.2rem', padding: '0 1rem' }}>−</button>
+                  <span style={{ minWidth: 80, fontSize: '1rem' }}>{currentQty} {product.unit || 'unit'}</span>
+                  <button onClick={() => changeQty(+1)} style={{ fontSize: '1.2rem', padding: '0 1rem' }}>+</button>
+                </div>
+                <button className="sc-add-btn pd-add-quote-btn"
+                  style={inQuote ? { background: '#16a34a' } : {}}
+                  onClick={() => upsertQuote(currentQty)}>
+                  {inQuote ? '✓ In Quote' : 'Add to Quote'}
                 </button>
                 <a href={`https://wa.me/${WA}?text=${waMsg}`} className="pd-wa-btn" target="_blank" rel="noopener noreferrer">
                   Order on WhatsApp
@@ -185,16 +204,19 @@ export default function ProductPage({ product, siteUrl }) {
             <button className="sc-quote-clear" onClick={() => setQuote([])}>Clear</button>
           </div>
           {quote.length === 0 ? (
-            <p className="sc-quote-empty">No items added yet. Add this or other products to your quote.</p>
+            <p className="sc-quote-empty">No items added yet. Use +/− to add.</p>
           ) : (
             <ul className="sc-quote-list">
               {quote.map(item => (
                 <li key={item.id} className="sc-quote-item">
-                  <div>
-                    <strong>{item.name}</strong>
+                  <div style={{ flex: 1 }}>
+                    <strong style={{ fontSize: '0.82rem' }}>{item.name}</strong>
                     {item.sku && <span className="sc-quote-sku"> ({item.sku})</span>}
-                    <br />
-                    <span className="sc-quote-qty">{item.qty} {item.unit || 'unit'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                      <button className="sc-mini-qty-btn" onClick={() => updateItemQty(item, Math.max(Number(item.min_qty)||1, item.qty - 1))}>−</button>
+                      <span className="sc-quote-qty">{item.qty} {item.unit || ''}</span>
+                      <button className="sc-mini-qty-btn" onClick={() => updateItemQty(item, item.qty + 1)}>+</button>
+                    </div>
                   </div>
                   <button className="sc-quote-remove" onClick={() => removeFromQuote(item.id)}>✕</button>
                 </li>
@@ -230,9 +252,13 @@ export default function ProductPage({ product, siteUrl }) {
             <ul className="sc-quote-list">
               {quote.map(item => (
                 <li key={item.id} className="sc-quote-item">
-                  <div>
-                    <strong>{item.name}</strong><br />
-                    <span className="sc-quote-qty">{item.qty} {item.unit || 'unit'}</span>
+                  <div style={{ flex: 1 }}>
+                    <strong style={{ fontSize: '0.82rem' }}>{item.name}</strong>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                      <button className="sc-mini-qty-btn" onClick={() => updateItemQty(item, Math.max(Number(item.min_qty)||1, item.qty - 1))}>−</button>
+                      <span className="sc-quote-qty">{item.qty} {item.unit || ''}</span>
+                      <button className="sc-mini-qty-btn" onClick={() => updateItemQty(item, item.qty + 1)}>+</button>
+                    </div>
                   </div>
                   <button className="sc-quote-remove" onClick={() => removeFromQuote(item.id)}>✕</button>
                 </li>
@@ -250,10 +276,12 @@ export default function ProductPage({ product, siteUrl }) {
 
 export async function getServerSideProps({ params }) {
   try {
+    const { getProductBySlug, getSettings } = require('../../lib/db')
     const product = getProductBySlug(params.slug)
     if (!product) return { notFound: true }
+    const settings = getSettings()
     const siteUrl = process.env.SITE_URL || 'http://168.144.189.151'
-    return { props: { product: { ...product }, siteUrl } }
+    return { props: { product: { ...product }, siteUrl, settings } }
   } catch {
     return { notFound: true }
   }
