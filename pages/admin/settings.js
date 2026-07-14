@@ -53,7 +53,8 @@ const SECTIONS = [
     title: 'SEO / Meta',
     icon: '🔍',
     fields: [
-      { key: 'meta_description', label: 'Default Meta Description', type: 'textarea', placeholder: 'Shown in Google search results...' },
+      { key: 'site_title',       label: 'Site Title (browser tab & Google)',  type: 'text',     placeholder: 'Arambhika Enablers — Nickel Strip & Copper Busbar Manufacturer India' },
+      { key: 'meta_description', label: 'Meta Description (Google snippet)',  type: 'textarea', placeholder: 'Shown below the site title in Google search results. Keep under 160 chars.' },
     ],
   },
 ]

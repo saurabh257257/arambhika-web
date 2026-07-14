@@ -13,7 +13,8 @@ export default function Layout({ children, title, description, ogImage, ogUrl, s
   const address    = settings.address       || 'Plot No. C-03, Sector 4, Greater Noida, UP – 201318'
   const metaDefault = settings.meta_description || `Manufacturer and distributor of nickel strips, copper busbars, and battery connectors. Based in Greater Noida.`
 
-  const siteTitle = title ? `${title} | ${brandName}` : `${brandName} — Nickel Strip & Copper Busbar Manufacturer`
+  const defaultSiteTitle = settings.site_title || `${brandName} — Nickel Strip & Copper Busbar Manufacturer`
+  const siteTitle = title ? `${title} | ${brandName}` : defaultSiteTitle
   const metaDesc  = description || metaDefault
 
   return (
