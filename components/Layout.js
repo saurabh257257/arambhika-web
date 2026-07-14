@@ -1,10 +1,20 @@
 import Head from 'next/head'
 import Link from 'next/link'
 
-export default function Layout({ children, title, description, ogImage, ogUrl }) {
-  const WA = '919315545821'
-  const siteTitle = title ? `${title} | Arambhika Enablers` : 'Arambhika Enablers — Nickel Strip & Copper Busbar Manufacturer'
-  const metaDesc = description || 'Manufacturer and distributor of nickel strips, copper busbars, and battery connectors. Based in Greater Noida. Serving EV, ESS, and battery pack manufacturers across India.'
+export default function Layout({ children, title, description, ogImage, ogUrl, settings = {} }) {
+  const brandName  = settings.brand_name    || 'Arambhika Enablers'
+  const tagline    = settings.brand_tagline || 'Nickel & Copper Battery Connectors'
+  const brandLogo  = settings.brand_logo    || ''
+  const WA         = settings.wa_number     || '919315545821'
+  const phone1     = settings.phone1        || '+91-9315545821'
+  const phone2     = settings.phone2        || '+91-8112662827'
+  const phone3     = settings.phone3        || ''
+  const email      = settings.email         || 'info@arambhikaenablers.in'
+  const address    = settings.address       || 'Plot No. C-03, Sector 4, Greater Noida, UP – 201318'
+  const metaDefault = settings.meta_description || `Manufacturer and distributor of nickel strips, copper busbars, and battery connectors. Based in Greater Noida.`
+
+  const siteTitle = title ? `${title} | ${brandName}` : `${brandName} — Nickel Strip & Copper Busbar Manufacturer`
+  const metaDesc  = description || metaDefault
 
   return (
     <>
@@ -25,7 +35,10 @@ export default function Layout({ children, title, description, ogImage, ogUrl })
       <header className="site-header">
         <div className="nav-inner">
           <Link href="/" className="nav-logo">
-            Arambhika <span>Enablers</span>
+            {brandLogo
+              ? <img src={brandLogo} alt={brandName} style={{ height: 40, objectFit: 'contain' }} />
+              : <>{brandName.split(' ')[0]} <span>{brandName.split(' ').slice(1).join(' ')}</span></>
+            }
           </Link>
           <nav>
             <ul className="nav-links">
@@ -48,11 +61,9 @@ export default function Layout({ children, title, description, ogImage, ogUrl })
       <footer className="site-footer">
         <div className="footer-inner">
           <div className="footer-brand">
-            <h3>Arambhika Enablers</h3>
-            <p>Manufacturer and distributor of nickel strips, copper busbars, and battery connectors. Serving EV and ESS manufacturers across India.</p>
-            <p style={{ marginTop: '1rem' }}>
-              Plot No. C-03, Sector 4,<br />Greater Noida, UP – 201318
-            </p>
+            <h3>{brandName}</h3>
+            <p>{tagline}</p>
+            {address && <p style={{ marginTop: '1rem' }}>{address.replace(/,\s*/g, ',\n').split('\n').map((l, i) => <span key={i}>{l}<br /></span>)}</p>}
           </div>
           <div className="footer-col">
             <h4>Pages</h4>
@@ -66,15 +77,15 @@ export default function Layout({ children, title, description, ogImage, ogUrl })
           <div className="footer-col">
             <h4>Contact</h4>
             <ul>
-              <li><a href="tel:+919315545821">+91-9315545821</a></li>
-              <li><a href="tel:+918112662827">+91-8112662827</a></li>
-              <li><a href="tel:+919953255677">+91-9953255677</a></li>
-              <li><a href="mailto:info@arambhikaenablers.in">info@arambhikaenablers.in</a></li>
+              {phone1 && <li><a href={`tel:${phone1.replace(/[^+\d]/g,'')}`}>{phone1}</a></li>}
+              {phone2 && <li><a href={`tel:${phone2.replace(/[^+\d]/g,'')}`}>{phone2}</a></li>}
+              {phone3 && <li><a href={`tel:${phone3.replace(/[^+\d]/g,'')}`}>{phone3}</a></li>}
+              {email  && <li><a href={`mailto:${email}`}>{email}</a></li>}
             </ul>
           </div>
         </div>
         <div className="footer-bottom">
-          © {new Date().getFullYear()} Arambhika Enablers. All rights reserved.
+          © {new Date().getFullYear()} {brandName}. All rights reserved.
         </div>
       </footer>
     </>

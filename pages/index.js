@@ -1,18 +1,17 @@
 import Link from 'next/link'
 import Layout from '../components/Layout'
-import { getAllProducts, getCategories } from '../lib/db'
 
-export default function Home({ featured, categories }) {
-  const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919315545821'
+export default function Home({ featured, categories, settings }) {
+  const WA = settings.wa_number || '919315545821'
 
   return (
-    <Layout>
+    <Layout settings={settings}>
       {/* Hero */}
       <section className="hero">
-        <h1>Nickel Strips & Copper Busbars for Battery Manufacturers</h1>
-        <p>Manufacturer and distributor based in Greater Noida. Serving EV, ESS, and battery pack makers across India.</p>
+        <h1>{settings.hero_title || 'Nickel Strips & Copper Busbars for Battery Manufacturers'}</h1>
+        <p>{settings.hero_subtitle || 'Manufacturer and distributor based in Greater Noida. Serving EV, ESS, and battery pack makers across India.'}</p>
         <div className="hero-actions">
-          <Link href="/store" className="btn btn-primary">Browse Products</Link>
+          <Link href="/store" className="btn btn-primary">{settings.hero_cta || 'Browse Products'}</Link>
           <a href={`https://wa.me/${WA}?text=Hi%2C%20I%20want%20to%20enquire%20about%20your%20products.`}
             className="btn btn-wa" target="_blank" rel="noopener noreferrer">
             WhatsApp Us
@@ -91,8 +90,8 @@ export default function Home({ featured, categories }) {
       {/* CTA */}
       <section className="section">
         <div className="container" style={{ textAlign: 'center' }}>
-          <h2 className="section-title">Need a custom quote?</h2>
-          <p className="section-sub">Send us your specifications on WhatsApp — we'll respond within 2 hours.</p>
+          <h2 className="section-title">{settings.cta_title || 'Need a custom quote?'}</h2>
+          <p className="section-sub">{settings.cta_subtitle || "Send us your specifications on WhatsApp — we'll respond within 2 hours."}</p>
           <a href={`https://wa.me/${WA}?text=Hi%2C%20I%20need%20a%20custom%20quote%20for%20nickel%20strips%2Fcopper%20busbars.`}
             className="btn btn-wa" target="_blank" rel="noopener noreferrer" style={{ fontSize: '1.05rem', padding: '0.9rem 2.5rem' }}>
             Get Quote on WhatsApp
@@ -105,15 +104,22 @@ export default function Home({ featured, categories }) {
 
 export async function getServerSideProps() {
   try {
-    const featured = getAllProducts().slice(0, 8)
-    const categories = getCategories()
+    const { getAllProductsSorted, getCategoriesOrdered, getSettings } = require('../lib/db')
+    const allProducts = getAllProductsSorted()
+    const catData = getCategoriesOrdered()
+    const settings = getSettings()
+
+    const catOrder = catData.map(c => c.category)
+    allProducts.forEach(p => { if (p.category && !catOrder.includes(p.category)) catOrder.push(p.category) })
+
     return {
       props: {
-        featured: featured.map(p => ({ ...p })),
-        categories,
+        featured: allProducts.slice(0, 8).map(p => ({ ...p })),
+        categories: catOrder.filter(c => allProducts.some(p => p.category === c)).map(c => ({ category: c })),
+        settings,
       },
     }
   } catch {
-    return { props: { featured: [], categories: [] } }
+    return { props: { featured: [], categories: [], settings: {} } }
   }
 }

@@ -62,6 +62,7 @@ export default function AdminDashboard({ isLoggedIn, error, stats }) {
           <Link href="/admin">Dashboard</Link>
           <Link href="/admin/products">Products</Link>
           <Link href="/admin/blogs">Blogs</Link>
+          <Link href="/admin/settings">Site Settings</Link>
           <Link href="/" target="_blank">View Site ↗</Link>
           <a href="/api/auth/logout" style={{ color: '#f87171' }}>Logout</a>
         </nav>
@@ -87,6 +88,7 @@ export default function AdminDashboard({ isLoggedIn, error, stats }) {
           <Link href="/admin/blogs/new" className="btn btn-primary">+ New Blog Post</Link>
           <Link href="/admin/products" className="btn-secondary">Manage Products</Link>
           <Link href="/admin/blogs" className="btn-secondary">Manage Blogs</Link>
+          <Link href="/admin/settings" className="btn-secondary">⚙ Site Settings</Link>
         </div>
       </div>
     </div>

@@ -1,11 +1,17 @@
 import Link from 'next/link'
 import Layout from '../components/Layout'
 
-export default function About() {
-  const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919315545821'
+export default function About({ settings }) {
+  const WA      = settings.wa_number || '919315545821'
+  const phone1  = settings.phone1 || '+91-9315545821'
+  const phone2  = settings.phone2 || ''
+  const phone3  = settings.phone3 || ''
+  const email   = settings.email  || 'info@arambhikaenablers.in'
+  const address = settings.address || 'Plot No. C-03, Sector 4, Greater Noida, UP – 201318'
 
   return (
-    <Layout title="About Us" description="Arambhika Enablers — manufacturer and distributor of nickel strips and copper busbars in Greater Noida, India.">
+    <Layout title="About Us" settings={settings}
+      description={`${settings.brand_name || 'Arambhika Enablers'} — manufacturer and distributor of nickel strips and copper busbars in Greater Noida, India.`}>
       <div className="container">
         <div className="breadcrumb">
           <Link href="/">Home</Link><span>/</span><span>About Us</span>
@@ -13,31 +19,41 @@ export default function About() {
 
         <div className="about-grid">
           <div className="about-text">
-            <h2>Who We Are</h2>
-            <p>Arambhika Enablers is a manufacturer and distributor of nickel strips, copper busbars, and battery connectors, based in Greater Noida, Uttar Pradesh.</p>
-            <p>We serve battery pack manufacturers, EV companies, and energy storage system (ESS) producers across India — providing quality materials with fast turnaround.</p>
-            <p>Our manufacturing unit, Swastik Metal Components, is located at Plot No. 153, Udyog Kendra-II, Ecotech-III, Greater Noida.</p>
+            <h2>{settings.about_heading || 'Who We Are'}</h2>
+            {(settings.about_content || '').split('\n').filter(Boolean).map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
+            {!settings.about_content && (
+              <>
+                <p>{settings.brand_name || 'Arambhika Enablers'} is a manufacturer and distributor of nickel strips, copper busbars, and battery connectors, based in Greater Noida, Uttar Pradesh.</p>
+                <p>We serve battery pack manufacturers, EV companies, and energy storage system (ESS) producers across India.</p>
+              </>
+            )}
 
             <div className="contact-cards" style={{ marginTop: '2rem' }}>
               <div className="contact-card">
                 <h4>Sales Office</h4>
-                <p>Plot No. C-03, Sector 4<br />Greater Noida, UP – 201318</p>
+                <p>{address}</p>
               </div>
               <div className="contact-card">
                 <h4>WhatsApp Orders</h4>
-                <p><a href={`https://wa.me/${WA}`}>+91-9315545821</a></p>
+                <p><a href={`https://wa.me/${WA}`}>{phone1}</a></p>
               </div>
-              <div className="contact-card">
-                <h4>Phone</h4>
-                <p>
-                  <a href="tel:+918112662827">+91-8112662827</a><br />
-                  <a href="tel:+919953255677">+91-9953255677</a>
-                </p>
-              </div>
-              <div className="contact-card">
-                <h4>Email</h4>
-                <p><a href="mailto:info@arambhikaenablers.in">info@arambhikaenablers.in</a></p>
-              </div>
+              {(phone2 || phone3) && (
+                <div className="contact-card">
+                  <h4>Phone</h4>
+                  <p>
+                    {phone2 && <><a href={`tel:${phone2.replace(/[^+\d]/g,'')}`}>{phone2}</a><br /></>}
+                    {phone3 && <a href={`tel:${phone3.replace(/[^+\d]/g,'')}`}>{phone3}</a>}
+                  </p>
+                </div>
+              )}
+              {email && (
+                <div className="contact-card">
+                  <h4>Email</h4>
+                  <p><a href={`mailto:${email}`}>{email}</a></p>
+                </div>
+              )}
             </div>
 
             <div style={{ marginTop: '2rem' }}>
@@ -50,9 +66,9 @@ export default function About() {
 
           <div>
             <div style={{ background: 'var(--navy)', borderRadius: 'var(--radius)', padding: '2.5rem', color: '#fff' }}>
-              <h3 style={{ marginBottom: '1.5rem', color: '#60a5fa' }}>Why Arambhika?</h3>
+              <h3 style={{ marginBottom: '1.5rem', color: '#60a5fa' }}>Why {settings.brand_name || 'Arambhika'}?</h3>
               {[
-                ['In-house manufacturing', 'Direct from our Swastik Metal Components facility'],
+                ['In-house manufacturing', 'Direct from our manufacturing facility'],
                 ['All India delivery', 'We ship to battery manufacturers across India'],
                 ['Fast response', 'WhatsApp quotes within 2 hours'],
                 ['Bulk pricing', 'Competitive rates for volume orders'],
@@ -72,4 +88,13 @@ export default function About() {
       </div>
     </Layout>
   )
+}
+
+export async function getServerSideProps() {
+  try {
+    const { getSettings } = require('../lib/db')
+    return { props: { settings: getSettings() } }
+  } catch {
+    return { props: { settings: {} } }
+  }
 }
