@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
 
 /* ── Shared quote helpers (localStorage) ── */
@@ -140,6 +141,79 @@ function QuotePanel({ quote, onRemove, onQtyChange, onClear, WA }) {
   )
 }
 
+/* ── Search suggestion dropdown ── */
+function SearchBox({ products, search, setSearch }) {
+  const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef(null)
+
+  const suggestions = search.trim().length > 0
+    ? products.filter(p => {
+        const q = search.toLowerCase()
+        return p.name.toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q)
+      }).slice(0, 8)
+    : []
+
+  useEffect(() => {
+    function onClickOutside(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [])
+
+  function pick(p) {
+    setSearch('')
+    setOpen(false)
+    router.push(`/store/${p.slug}`)
+  }
+
+  function onKeyDown(e) {
+    if (e.key === 'Escape') { setOpen(false); setSearch('') }
+  }
+
+  return (
+    <div className="sc-search-wrap" ref={wrapRef}>
+      <input
+        className="sc-searchbar"
+        type="text"
+        placeholder="Search products by name, SKU or category..."
+        value={search}
+        onChange={e => { setSearch(e.target.value); setOpen(true) }}
+        onFocus={() => search && setOpen(true)}
+        onKeyDown={onKeyDown}
+        autoComplete="off"
+      />
+      {open && suggestions.length > 0 && (
+        <div className="sc-suggest-drop">
+          {suggestions.map(p => {
+            const img = JSON.parse(p.images || '[]')[0]
+            return (
+              <div key={p.id} className="sc-suggest-item" onMouseDown={() => pick(p)}>
+                <div className="sc-suggest-img">
+                  {img ? <img src={img} alt={p.name} /> : <span>{(p.name || '?').slice(0,1)}</span>}
+                </div>
+                <div className="sc-suggest-info">
+                  <span className="sc-suggest-name">{p.name}</span>
+                  <span className="sc-suggest-meta">
+                    {p.sku && <b>{p.sku}</b>}
+                    {p.sku && p.category && ' · '}
+                    {p.category}
+                    {p.price && ` · ₹${p.price}/${p.unit || 'unit'}`}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+          <div className="sc-suggest-footer">
+            Press Enter to search all · Esc to close
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ── Main store page ── */
 export default function Store({ products, categories, activeCategory, settings }) {
   const WA = settings.wa_number || '919315545821'
@@ -180,10 +254,9 @@ export default function Store({ products, categories, activeCategory, settings }
     <Layout title="Product Store" settings={settings}
       description="Browse our full catalog of nickel strips, copper busbars, and battery connectors.">
 
-      {/* Sticky search bar — full width */}
+      {/* Sticky search bar with suggestion dropdown */}
       <div className="sc-searchbar-sticky">
-        <input className="sc-searchbar" type="text" placeholder="Search products..."
-          value={search} onChange={e => setSearch(e.target.value)} />
+        <SearchBox products={products} search={search} setSearch={setSearch} />
       </div>
 
       <div className="sc-layout2">
