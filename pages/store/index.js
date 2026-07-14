@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Layout from '../../components/Layout'
 
@@ -146,6 +146,7 @@ export default function Store({ products, categories, activeCategory, settings }
   const [search, setSearch]       = useState('')
   const [quote, setQuote]         = useState([])
   const [showQuote, setShowQuote] = useState(false)
+  const catbarRef                 = useRef(null)
 
   useEffect(() => { setQuote(loadQuote()) }, [])
   useEffect(() => { saveQuote(quote) }, [quote])
@@ -166,6 +167,10 @@ export default function Store({ products, categories, activeCategory, settings }
     setQuote(prev => prev.filter(x => x.id !== id))
   }, [])
 
+  const scrollCat = (dir) => {
+    if (catbarRef.current) catbarRef.current.scrollBy({ left: dir * 240, behavior: 'smooth' })
+  }
+
   const filtered = products.filter(p => {
     const q = search.toLowerCase()
     return !q || p.name.toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q)
@@ -175,28 +180,37 @@ export default function Store({ products, categories, activeCategory, settings }
     <Layout title="Product Store" settings={settings}
       description="Browse our full catalog of nickel strips, copper busbars, and battery connectors.">
 
-      {/* Sticky top bar: search + category strip */}
-      <div className="sc-topbar-sticky">
-        <div className="sc-searchbar-wrap">
-          <input className="sc-searchbar" type="text" placeholder="Search products..."
-            value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
-        <div className="sc-catbar">
-          <Link href="/store" className={`sc-catbar-item${!activeCategory ? ' active' : ''}`}>
-            All
-          </Link>
-          {categories.map(c => (
-            <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
-              className={`sc-catbar-item${activeCategory === c.category ? ' active' : ''}`}>
-              {c.image && <img src={c.image} alt="" className="sc-catbar-thumb" />}
-              {c.category}
-            </Link>
-          ))}
-        </div>
+      {/* Sticky search bar — full width */}
+      <div className="sc-searchbar-sticky">
+        <input className="sc-searchbar" type="text" placeholder="Search products..."
+          value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
       <div className="sc-layout2">
         <main className="sc-main2">
+          {/* Sticky category strip inside product column */}
+          <div className="sc-catbar-wrap">
+            <button className="sc-catbar-arrow" onClick={() => scrollCat(-1)}>&#8249;</button>
+            <div className="sc-catbar2" ref={catbarRef}>
+              <Link href="/store" className={`sc-catcard${!activeCategory ? ' active' : ''}`}>
+                <div className="sc-catcard-img sc-catcard-all">All</div>
+                <span className="sc-catcard-label">All</span>
+              </Link>
+              {categories.map(c => (
+                <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
+                  className={`sc-catcard${activeCategory === c.category ? ' active' : ''}`}>
+                  <div className="sc-catcard-img">
+                    {c.image
+                      ? <img src={c.image} alt={c.category} />
+                      : <span>{c.category.slice(0,2).toUpperCase()}</span>}
+                  </div>
+                  <span className="sc-catcard-label">{c.category}</span>
+                </Link>
+              ))}
+            </div>
+            <button className="sc-catbar-arrow" onClick={() => scrollCat(1)}>&#8250;</button>
+          </div>
+
           {filtered.length === 0 ? (
             <div className="empty-state">
               <h3>No products found</h3>
