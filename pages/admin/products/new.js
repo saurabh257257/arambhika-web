@@ -30,15 +30,24 @@ export default function NewProduct() {
 
   const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
+  const makePrefix = () => {
+    const raw = (form.sku ? form.sku + '_' : '') + (form.name || 'product')
+    return raw.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 50)
+  }
+
   const handleFiles = async (e) => {
     const files = Array.from(e.target.files)
     if (!files.length) return
     setUploading(true)
     const newPaths = []
     const newPreviews = []
+    const prefix = makePrefix()
+    let idx = images.length + 1
     for (const file of files) {
       const fd = new FormData()
       fd.append('file', file)
+      fd.append('prefix', prefix)
+      fd.append('imgIndex', String(idx++))
       const res = await fetch('/api/upload', { method: 'POST', body: fd })
       const data = await res.json()
       if (res.ok) {

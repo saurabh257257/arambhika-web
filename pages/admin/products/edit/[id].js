@@ -2,7 +2,6 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { getSession } from '../../../../lib/session'
-import { getProductById } from '../../../../lib/db'
 
 const CATEGORIES = [
   'Nickel Strip Plated', 'Nickel Strip Pure', 'Copper Busbar',
@@ -29,14 +28,23 @@ export default function EditProduct({ product }) {
 
   const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
+  const makePrefix = () => {
+    const raw = (form.sku ? form.sku + '_' : '') + (form.name || 'product')
+    return raw.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 50)
+  }
+
   const handleFiles = async (e) => {
     const files = Array.from(e.target.files)
     if (!files.length) return
     setUploading(true)
     const newPaths = []
+    const prefix = makePrefix()
+    let idx = images.length + 1
     for (const file of files) {
       const fd = new FormData()
       fd.append('file', file)
+      fd.append('prefix', prefix)
+      fd.append('imgIndex', String(idx++))
       const res = await fetch('/api/upload', { method: 'POST', body: fd })
       const data = await res.json()
       if (res.ok) newPaths.push(data.url)
@@ -188,6 +196,7 @@ export async function getServerSideProps({ req, res, params }) {
   const session = await getSession(req, res)
   if (!session?.admin) return { redirect: { destination: '/admin', permanent: false } }
   try {
+    const { getProductById } = require('../../../../lib/db')
     const product = getProductById(Number(params.id))
     if (!product) return { notFound: true }
     return { props: { product: { ...product } } }
