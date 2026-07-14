@@ -546,9 +546,9 @@ a { color: inherit; text-decoration: none; }
   .sc-layout { grid-template-columns: 1fr; overflow-x: hidden; }
   .sc-layout2 { grid-template-columns: 1fr; overflow-x: hidden; }
   .sc-searchbar-sticky { top: 56px; padding: 0.45rem 0.75rem; }
-  .sc-catbar-wrap { position: relative; top: auto; margin: 0; padding: 0; overflow: visible; }
+  .sc-catbar-wrap { position: relative; top: auto; margin: 0; padding: 0; overflow: hidden; }
   .sc-catbar-arrow { display: none; }
-  .sc-catbar2 { padding: 0.55rem 0.75rem; overflow-x: auto; overflow-y: visible; -webkit-overflow-scrolling: touch; touch-action: pan-x; overscroll-behavior-x: contain; }
+  .sc-catbar2 { padding: 0.55rem 0.75rem; min-width: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x; overscroll-behavior-x: contain; }
   .sc-catcard { width: 68px; }
   .sc-catcard-img { width: 52px; height: 52px; border-radius: 8px; }
   .sc-catcard-label { font-size: 0.68rem; max-width: 66px; }
