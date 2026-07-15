@@ -270,9 +270,6 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
   const [rows, setRows]           = useState(() => initialProducts.map(initRow))
   const [catOrder, setCatOrder]   = useState(initialCategoryOrder)
   const [search, setSearch]       = useState('')
-  const [seeding, setSeeding]     = useState(false)
-  const [seedMsg, setSeedMsg]     = useState('')
-
   // Persist category order to DB on change
   const saveCatOrder = useCallback(async (order) => {
     await fetch('/api/admin/categories', {
@@ -386,15 +383,6 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
     await moveProductUp(cat, idx + 1)
   }
 
-  const runSeed = async () => {
-    if (!confirm('This will wipe all products and re-import 55 from the Excel template. Continue?')) return
-    setSeeding(true); setSeedMsg('')
-    const res = await fetch('/api/admin/seed', { method: 'POST' })
-    const data = await res.json()
-    setSeedMsg(res.ok ? `✓ Imported ${data.inserted} products. Refresh to see them.` : '✗ ' + data.error)
-    setSeeding(false)
-  }
-
   // ── Build grouped view ───────────────────────────────────────────────────────
   const q = search.toLowerCase()
   const filteredRows = rows.filter(r =>
@@ -453,22 +441,8 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
             <input className="pg-search" type="text" placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)} />
             <button className="btn btn-primary" onClick={addRow}>+ Add Product</button>
             <button className="btn-secondary" onClick={downloadExcel}>⬇ Download Excel</button>
-            <button className="btn-secondary" onClick={runSeed} disabled={seeding}>
-              {seeding ? 'Importing…' : '⬆ Seed from Excel'}
-            </button>
           </div>
         </div>
-
-        {seedMsg && (
-          <div className={`alert ${seedMsg.startsWith('✓') ? 'alert-success' : 'alert-error'}`} style={{ marginBottom: '1rem' }}>
-            {seedMsg}
-            {seedMsg.startsWith('✓') && (
-              <button onClick={() => window.location.reload()} style={{ marginLeft: '1rem', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}>
-                Refresh →
-              </button>
-            )}
-          </div>
-        )}
 
         {/* Column headers legend */}
         <div className="pg-wa-legend">
