@@ -3,23 +3,14 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { getSession } from '../../../lib/session'
 
-const CATEGORIES = [
-  'Nickel Strip Plated',
-  'Nickel Strip Pure',
-  'Copper Busbar',
-  'Nickel Strip Plated with Holder',
-  'Nickel Strip Pure with Holder',
-  'Cell',
-  'Other',
-]
-
-export default function NewProduct() {
+export default function NewProduct({ categories }) {
   const router = useRouter()
   const fileRef = useRef(null)
 
   const [form, setForm] = useState({
     name: '', sku: '', category: '', price: '', unit: 'KG', min_qty: '', description: '',
   })
+  const [isNewCat, setIsNewCat] = useState(false)
   const [specs, setSpecs] = useState([{ key: '', value: '' }])
   const [images, setImages] = useState([]) // uploaded paths
   const [previews, setPreviews] = useState([])
@@ -66,6 +57,10 @@ export default function NewProduct() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!form.category) {
+      setError('Please select or enter a category')
+      return
+    }
     setError('')
     setSaving(true)
     const validSpecs = specs.filter(s => s.key && s.value)
@@ -148,10 +143,24 @@ export default function NewProduct() {
             </div>
             <div className="form-group">
               <label>Category</label>
-              <select name="category" value={form.category} onChange={handleChange} required>
+              <select value={isNewCat ? '__new__' : form.category} onChange={e => {
+                if (e.target.value === '__new__') { setIsNewCat(true); setForm(f => ({ ...f, category: '' })) }
+                else { setIsNewCat(false); setForm(f => ({ ...f, category: e.target.value })) }
+              }} required={!isNewCat}>
                 <option value="">Select category</option>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                <option value="__new__">+ New category…</option>
               </select>
+              {isNewCat && (
+                <input
+                  name="category"
+                  style={{ marginTop: '0.5rem' }}
+                  value={form.category}
+                  placeholder="Type new category name"
+                  onChange={handleChange}
+                  required
+                />
+              )}
             </div>
           </div>
 
@@ -213,5 +222,9 @@ export default function NewProduct() {
 export async function getServerSideProps({ req, res }) {
   const session = await getSession(req, res)
   if (!session?.admin) return { redirect: { destination: '/admin', permanent: false } }
-  return { props: {} }
+  const { getDb } = require('../../../lib/db')
+  const db = getDb()
+  const rows = db.prepare('SELECT DISTINCT category FROM products WHERE active=1 ORDER BY category').all()
+  const categories = rows.map(r => r.category)
+  return { props: { categories } }
 }

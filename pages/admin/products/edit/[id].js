@@ -3,12 +3,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { getSession } from '../../../../lib/session'
 
-const CATEGORIES = [
-  'Nickel Strip Plated', 'Nickel Strip Pure', 'Copper Busbar',
-  'Nickel Strip Plated with Holder', 'Nickel Strip Pure with Holder', 'Cell', 'Other',
-]
-
-export default function EditProduct({ product }) {
+export default function EditProduct({ product, categories }) {
   const router = useRouter()
   const fileRef = useRef(null)
 
@@ -131,10 +126,24 @@ export default function EditProduct({ product }) {
             </div>
             <div className="form-group">
               <label>Category</label>
-              <select name="category" value={form.category} onChange={handleChange} required>
+              <select name="category" value={categories.includes(form.category) ? form.category : (form.category ? '__other__' : '')}
+                onChange={e => {
+                  if (e.target.value !== '__other__') setForm(f => ({ ...f, category: e.target.value }))
+                  else setForm(f => ({ ...f, category: '' }))
+                }} required>
                 <option value="">Select category</option>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                <option value="__other__">+ New category…</option>
               </select>
+              {!categories.includes(form.category) && form.category !== '' && (
+                <input
+                  style={{ marginTop: '0.5rem' }}
+                  value={form.category}
+                  placeholder="Type new category name"
+                  onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                  required
+                />
+              )}
             </div>
           </div>
 
@@ -196,10 +205,13 @@ export async function getServerSideProps({ req, res, params }) {
   const session = await getSession(req, res)
   if (!session?.admin) return { redirect: { destination: '/admin', permanent: false } }
   try {
-    const { getProductById } = require('../../../../lib/db')
+    const { getProductById, getDb } = require('../../../../lib/db')
     const product = getProductById(Number(params.id))
     if (!product) return { notFound: true }
-    return { props: { product: { ...product } } }
+    const db = getDb()
+    const rows = db.prepare('SELECT DISTINCT category FROM products WHERE active=1 ORDER BY category').all()
+    const categories = rows.map(r => r.category)
+    return { props: { product: { ...product }, categories } }
   } catch {
     return { notFound: true }
   }
