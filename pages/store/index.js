@@ -224,33 +224,7 @@ export default function Store({ products, categories, activeCategory, settings }
   useEffect(() => { setQuote(loadQuote()) }, [])
   useEffect(() => { saveQuote(quote) }, [quote])
 
-  // Intercept horizontal touch on catbar so page doesn't scroll instead
-  useEffect(() => {
-    const el = catbarRef.current
-    if (!el) return
-    let startX = 0, startY = 0
-    const onStart = (e) => {
-      startX = e.touches[0].clientX
-      startY = e.touches[0].clientY
-    }
-    const onMove = (e) => {
-      const dx = Math.abs(e.touches[0].clientX - startX)
-      const dy = Math.abs(e.touches[0].clientY - startY)
-      if (dx > dy && dx > 5) {
-        e.preventDefault()
-        el.scrollLeft += startX - e.touches[0].clientX
-        startX = e.touches[0].clientX
-      }
-    }
-    el.addEventListener('touchstart', onStart, { passive: true })
-    el.addEventListener('touchmove', onMove, { passive: false })
-    return () => {
-      el.removeEventListener('touchstart', onStart)
-      el.removeEventListener('touchmove', onMove)
-    }
-  }, [])
-
-  const upsertQuote = useCallback((product, qty) => {
+const upsertQuote = useCallback((product, qty) => {
     setQuote(prev => {
       const idx = prev.findIndex(x => x.id === product.id)
       if (idx >= 0) {

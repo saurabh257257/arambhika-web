@@ -615,12 +615,35 @@ a { color: inherit; text-decoration: none; }
   .sc-layout { grid-template-columns: 1fr; overflow-x: hidden; }
   .sc-layout2 { grid-template-columns: 1fr; overflow-x: hidden; }
   .sc-searchbar-sticky { top: 56px; padding: 0.45rem 0.75rem; }
-  .sc-catbar-wrap { position: relative; top: auto; margin: 0; padding: 0; overflow: hidden; }
+  /* Category strip — native horizontal scroll pill row on mobile */
+  .sc-catbar-wrap {
+    position: relative; top: auto; margin: 0; padding: 0;
+    overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    touch-action: pan-x;
+    width: 100%; box-sizing: border-box;
+  }
+  .sc-catbar-wrap::-webkit-scrollbar { display: none; }
   .sc-catbar-arrow { display: none; }
-  .sc-catbar2 { padding: 0.55rem 0.75rem; min-width: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x; overscroll-behavior-x: contain; }
-  .sc-catcard { width: 68px; }
-  .sc-catcard-img { width: 52px; height: 52px; border-radius: 8px; }
-  .sc-catcard-label { font-size: 0.68rem; max-width: 66px; }
+  .sc-catbar2 {
+    overflow: visible;
+    flex-shrink: 0;
+    min-width: max-content;
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+  }
+  /* Pills instead of image cards */
+  .sc-catcard {
+    flex-direction: row; width: auto; flex-shrink: 0;
+    padding: 0.35rem 0.85rem; border-radius: 100px;
+    background: var(--off); border: 1.5px solid var(--border);
+    white-space: nowrap; transition: none;
+  }
+  .sc-catcard.active { background: var(--accent); border-color: var(--accent); }
+  .sc-catcard.active .sc-catcard-label { color: #fff; font-weight: 700; }
+  .sc-catcard-img { display: none; }
+  .sc-catcard-label { font-size: 0.82rem; font-weight: 600; max-width: none; white-space: nowrap; color: #374151; }
   .sc-quote-panel { display: none; }
   .sc-float-btn { display: flex; }
   .sc-main { padding: 0.75rem; gap: 0.75rem; border-right: none; }
