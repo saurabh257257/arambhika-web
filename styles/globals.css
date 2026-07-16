@@ -855,6 +855,50 @@ a { color: inherit; text-decoration: none; }
 .pd-cta-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1.25rem 0; }
 .pd-add-quote-btn { padding: 0.65rem 1.5rem; font-size: 0.95rem; }
 
+/* ── Image Lightbox ── */
+.lb-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.88);
+  display: flex; align-items: center; justify-content: center;
+}
+.lb-img-wrap {
+  max-width: 90vw; max-height: 90vh;
+  display: flex; align-items: center; justify-content: center;
+}
+.lb-img {
+  max-width: 90vw; max-height: 90vh;
+  object-fit: contain; border-radius: 6px;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.6);
+  background: #fff; padding: 0.5rem;
+}
+.lb-close {
+  position: fixed; top: 1.25rem; right: 1.5rem;
+  background: rgba(255,255,255,0.15); border: none; color: #fff;
+  width: 40px; height: 40px; border-radius: 50%; font-size: 1.1rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; z-index: 1001;
+}
+.lb-close:hover { background: rgba(255,255,255,0.3); }
+.lb-arrow {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.12); border: none; color: #fff;
+  width: 48px; height: 48px; border-radius: 50%; font-size: 2rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; z-index: 1001; line-height: 1;
+}
+.lb-arrow:hover { background: rgba(255,255,255,0.28); }
+.lb-arrow-l { left: 1rem; }
+.lb-arrow-r { right: 1rem; }
+.lb-dots {
+  position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 8px; z-index: 1001;
+}
+.lb-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: rgba(255,255,255,0.35); cursor: pointer; transition: background 0.15s;
+}
+.lb-dot.active { background: #fff; }
+
 /* Mobile quote drawer */
 .mobile-quote-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 2px solid var(--border); border-radius: 16px 16px 0 0; padding: 1.25rem; z-index: 300; max-height: 70vh; overflow-y: auto; box-shadow: 0 -4px 24px rgba(0,0,0,0.15); }
 .mobile-quote-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }

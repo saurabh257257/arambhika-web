@@ -3,10 +3,40 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
 
+function Lightbox({ images, startIdx, onClose }) {
+  const [idx, setIdx] = useState(startIdx)
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowRight') setIdx(i => (i + 1) % images.length)
+      if (e.key === 'ArrowLeft') setIdx(i => (i - 1 + images.length) % images.length)
+    }
+    document.addEventListener('keydown', handler)
+    document.body.style.overflow = 'hidden'
+    return () => { document.removeEventListener('keydown', handler); document.body.style.overflow = '' }
+  }, [images.length, onClose])
+  return (
+    <div className="lb-backdrop" onClick={onClose}>
+      <button className="lb-close" onClick={onClose}>✕</button>
+      {images.length > 1 && <button className="lb-arrow lb-arrow-l" onClick={e => { e.stopPropagation(); setIdx(i => (i - 1 + images.length) % images.length) }}>&#8249;</button>}
+      <div className="lb-img-wrap" onClick={e => e.stopPropagation()}>
+        <img src={images[idx]} alt="" className="lb-img" />
+      </div>
+      {images.length > 1 && <button className="lb-arrow lb-arrow-r" onClick={e => { e.stopPropagation(); setIdx(i => (i + 1) % images.length) }}>&#8250;</button>}
+      {images.length > 1 && (
+        <div className="lb-dots">
+          {images.map((_, i) => <span key={i} className={`lb-dot${i === idx ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setIdx(i) }} />)}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function ProductPage({ product, siteUrl, settings = {} }) {
   const WA = settings.wa_number || '919315545821'
   const router = useRouter()
   const [imgIdx, setImgIdx] = useState(0)
+  const [lightbox, setLightbox] = useState(false)
   const [copied, setCopied] = useState(false)
   const [quote, setQuote] = useState([])
   const [mobile, setMobile] = useState('')
@@ -106,12 +136,13 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
           <div className="pd-layout">
             {/* Images */}
             <div className="pd-img-col">
+              {lightbox && <Lightbox images={images} startIdx={imgIdx} onClose={() => setLightbox(false)} />}
               <div className="pd-carousel">
                 {images.length > 0 ? (
                   <>
-                    <div className="pd-img-frame">
-                  <img src={images[imgIdx]} alt={`${product.name} - image ${imgIdx + 1}`} className="pd-img-main" />
-                </div>
+                    <div className="pd-img-frame" onClick={() => setLightbox(true)} style={{ cursor: 'zoom-in' }}>
+                      <img src={images[imgIdx]} alt={`${product.name} - image ${imgIdx + 1}`} className="pd-img-main" />
+                    </div>
                     {images.length > 1 && (
                       <>
                         <button className="sc-arrow sc-arrow-l" onClick={() => setImgIdx(i => (i - 1 + images.length) % images.length)}>&#8249;</button>

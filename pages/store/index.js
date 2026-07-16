@@ -10,6 +10,32 @@ export function saveQuote(q) {
   try { localStorage.setItem('arambhika_quote', JSON.stringify(q)) } catch {}
 }
 
+/* ── Image Lightbox ── */
+function Lightbox({ images, startIdx, onClose }) {
+  const [idx, setIdx] = useState(startIdx)
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); if (e.key === 'ArrowRight') setIdx(i => (i + 1) % images.length); if (e.key === 'ArrowLeft') setIdx(i => (i - 1 + images.length) % images.length) }
+    document.addEventListener('keydown', handler)
+    document.body.style.overflow = 'hidden'
+    return () => { document.removeEventListener('keydown', handler); document.body.style.overflow = '' }
+  }, [images.length, onClose])
+  return (
+    <div className="lb-backdrop" onClick={onClose}>
+      <button className="lb-close" onClick={onClose}>✕</button>
+      <button className="lb-arrow lb-arrow-l" onClick={e => { e.stopPropagation(); setIdx(i => (i - 1 + images.length) % images.length) }}>&#8249;</button>
+      <div className="lb-img-wrap" onClick={e => e.stopPropagation()}>
+        <img src={images[idx]} alt="" className="lb-img" />
+      </div>
+      <button className="lb-arrow lb-arrow-r" onClick={e => { e.stopPropagation(); setIdx(i => (i + 1) % images.length) }}>&#8250;</button>
+      {images.length > 1 && (
+        <div className="lb-dots">
+          {images.map((_, i) => <span key={i} className={`lb-dot${i === idx ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setIdx(i) }} />)}
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ── Product card — horizontal on desktop, vertical on mobile ── */
 function ProductCard({ p, quote, onQtyChange }) {
   const images  = JSON.parse(p.images || '[]')
@@ -17,6 +43,7 @@ function ProductCard({ p, quote, onQtyChange }) {
   const inQuote = quote.find(x => x.id === p.id)
   const [imgIdx, setImgIdx] = useState(0)
   const [expanded, setExpanded] = useState(false)
+  const [lightbox, setLightbox] = useState(false)
   const qty = inQuote ? inQuote.qty : minQty
 
   const changeQty = (delta) => {
@@ -29,17 +56,18 @@ function ProductCard({ p, quote, onQtyChange }) {
   return (
     <article className="pcard">
       {/* Image */}
-      <Link href={`/store/${p.slug}`} className="pcard-img-wrap">
+      {lightbox && <Lightbox images={images} startIdx={imgIdx} onClose={() => setLightbox(false)} />}
+      <div className="pcard-img-wrap" onClick={() => images.length > 0 && setLightbox(true)} style={{ cursor: images.length > 0 ? 'zoom-in' : 'default' }}>
         {images.length > 0 ? (
           <>
             <img src={images[imgIdx]} alt={p.name} className="pcard-img" loading="lazy" />
             {images.length > 1 && (
               <>
-                <button className="pcard-arrow pcard-arrow-l" onClick={e => { e.preventDefault(); e.stopPropagation(); setImgIdx(i => (i - 1 + images.length) % images.length) }}>‹</button>
-                <button className="pcard-arrow pcard-arrow-r" onClick={e => { e.preventDefault(); e.stopPropagation(); setImgIdx(i => (i + 1) % images.length) }}>›</button>
+                <button className="pcard-arrow pcard-arrow-l" onClick={e => { e.stopPropagation(); setImgIdx(i => (i - 1 + images.length) % images.length) }}>‹</button>
+                <button className="pcard-arrow pcard-arrow-r" onClick={e => { e.stopPropagation(); setImgIdx(i => (i + 1) % images.length) }}>›</button>
                 <div className="pcard-dots">
                   {images.map((_, i) => (
-                    <span key={i} className={`pcard-dot${i === imgIdx ? ' active' : ''}`} onClick={e => { e.preventDefault(); e.stopPropagation(); setImgIdx(i) }} />
+                    <span key={i} className={`pcard-dot${i === imgIdx ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setImgIdx(i) }} />
                   ))}
                 </div>
               </>
@@ -48,7 +76,7 @@ function ProductCard({ p, quote, onQtyChange }) {
         ) : (
           <div className="pcard-img-empty">No image</div>
         )}
-      </Link>
+      </div>
 
       {/* Content */}
       <div className="pcard-body">
