@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Layout from '../components/Layout'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 function HeroCarousel({ images }) {
   const [idx, setIdx] = useState(0)
@@ -22,6 +22,58 @@ function HeroCarousel({ images }) {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+function CategoryCarousel({ categories }) {
+  const [idx, setIdx] = useState(0)
+  const timerRef = useRef(null)
+
+  const startTimer = (len) => {
+    clearInterval(timerRef.current)
+    if (len < 2) return
+    timerRef.current = setInterval(() => setIdx(i => (i + 1) % len), 3500)
+  }
+
+  useEffect(() => {
+    startTimer(categories.length)
+    return () => clearInterval(timerRef.current)
+  }, [categories.length])
+
+  const go = (dir) => {
+    setIdx(i => (i + dir + categories.length) % categories.length)
+    startTimer(categories.length)
+  }
+
+  if (!categories.length) return null
+  return (
+    <div className="cat-carousel-mob">
+      <button className="cat-cmob-btn cat-cmob-btn-prev" onClick={() => go(-1)}>&#8249;</button>
+      <div className="cat-cmob-slide">
+        {categories.map((c, i) => (
+          <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
+            className={`cat-cmob-card${i === idx ? ' active' : ''}`}>
+            <div className="cat-cmob-img-wrap">
+              {c.image
+                ? <img src={c.image} alt={c.category} className="cat-cmob-img" loading="lazy" />
+                : <div className="cat-cmob-placeholder">{c.category.slice(0, 2).toUpperCase()}</div>
+              }
+            </div>
+            <span className="cat-cmob-label">{c.category}</span>
+          </Link>
+        ))}
+        {categories.length > 1 && (
+          <div className="cat-cmob-dots">
+            {categories.map((_, i) => (
+              <button key={i}
+                className={`cat-cmob-dot${i === idx ? ' active' : ''}`}
+                onClick={e => { e.preventDefault(); setIdx(i); startTimer(categories.length) }} />
+            ))}
+          </div>
+        )}
+      </div>
+      <button className="cat-cmob-btn cat-cmob-btn-next" onClick={() => go(1)}>&#8250;</button>
     </div>
   )
 }
@@ -53,6 +105,7 @@ export default function Home({ featured, categories, settings, heroImages }) {
           <div className="container">
             <h2 className="section-title">Product Categories</h2>
             <p className="section-sub">Click a category to browse products</p>
+            {/* Desktop: horizontal scroll row */}
             <div className="cat-card-row">
               {categories.map(c => (
                 <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`} className="cat-card">
@@ -66,6 +119,8 @@ export default function Home({ featured, categories, settings, heroImages }) {
                 </Link>
               ))}
             </div>
+            {/* Mobile: auto-rotating carousel */}
+            <CategoryCarousel categories={categories} />
           </div>
         </section>
       )}
