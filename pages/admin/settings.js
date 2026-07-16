@@ -32,9 +32,8 @@ const SECTIONS = [
     title: 'Homepage — Hero',
     icon: '🏠',
     fields: [
-      { key: 'hero_title',    label: 'Hero Heading',         type: 'text',     placeholder: 'Nickel Strips & Copper Busbars...' },
-      { key: 'hero_subtitle', label: 'Hero Subtext',         type: 'textarea', placeholder: 'Manufacturer and distributor...' },
-      { key: 'hero_cta',      label: 'Primary CTA Button',   type: 'text',     placeholder: 'Browse Products' },
+      { key: 'hero_title',    label: 'Title',       type: 'text',     placeholder: 'Nickel Strips & Copper Busbars...' },
+      { key: 'hero_subtitle', label: 'Description', type: 'textarea', placeholder: 'Manufacturer and distributor...' },
     ],
   },
   {
