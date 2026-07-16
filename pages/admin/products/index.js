@@ -328,13 +328,15 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
 
   const addRow = () => {
     const tempId = newTempId()
-    setRows(prev => [initRow({
-      id: tempId, name: '', sku: '', category: '', price: '',
-      unit: 'KG', min_qty: '', description: '', specs: [], images: [],
-      sort_order: 0, availability: 'in stock', condition: 'new',
-      brand: 'Arambhika Enablers', material: '', dimensions: '', slug: '',
-      _isNew: true, _dirty: true, _expanded: true,
-    }), ...prev])
+    setRows(prev => [{
+      ...initRow({
+        id: tempId, name: '', sku: '', category: '', price: '',
+        unit: 'KG', min_qty: '', description: '', specs: [], images: [],
+        sort_order: 0, availability: 'in stock', condition: 'new',
+        brand: 'Arambhika Enablers', material: '', dimensions: '', slug: '',
+      }),
+      _isNew: true, _dirty: true, _expanded: true, _imgOpen: true,
+    }, ...prev])
   }
 
   const downloadExcel = () => { window.location.href = '/api/admin/export' }
@@ -460,6 +462,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
                 <th>Image</th>
                 <th>SKU</th>
                 <th>Name / Title</th>
+                <th>Category</th>
                 <th>Description</th>
                 <th>Availability</th>
                 <th>Condition</th>
