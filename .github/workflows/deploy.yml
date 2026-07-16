@@ -20,6 +20,5 @@ jobs:
             git pull origin master
             npm install --production=false
             npm run build
-            node scripts/seed.js
             pm2 restart arambhika-web || pm2 start npm --name arambhika-web -- start
             pm2 save

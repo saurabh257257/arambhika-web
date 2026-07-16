@@ -127,37 +127,26 @@ export default function Home({ featured, categories, settings, heroImages }) {
 
       {/* Featured Products */}
       {featured.length > 0 && (
-        <section className="section" style={{ background: 'var(--off)', padding: '4rem 0' }}>
+        <section className="section" style={{ background: 'var(--off)', padding: '3rem 0' }}>
           <div className="container">
-            <h2 className="section-title">Featured Products</h2>
-            <p className="section-sub">
-              <Link href="/store" style={{ color: 'var(--accent)' }}>View all →</Link>
-            </p>
-            <div className="product-grid">
+            <div className="home-products-header">
+              <h2 className="section-title" style={{ marginBottom: 0 }}>Featured Products</h2>
+              <Link href="/store" className="home-view-all">View all →</Link>
+            </div>
+            <div className="home-product-grid">
               {featured.map(p => {
                 const images = JSON.parse(p.images || '[]')
                 return (
-                  <article key={p.id} className="product-card">
-                    <Link href={`/store/${p.slug}`}>
+                  <Link key={p.id} href={`/store/${p.slug}`} className="home-product-tile">
+                    <div className="home-product-img-wrap">
                       {images[0]
-                        ? <img src={images[0]} alt={p.name} className="product-card-img" loading="lazy" />
-                        : <div className="product-card-img-placeholder">No image</div>
+                        ? <img src={images[0]} alt={p.name} className="home-product-img" loading="lazy" />
+                        : <div className="home-product-img-empty">{p.category?.slice(0,2).toUpperCase()}</div>
                       }
-                    </Link>
-                    <div className="product-card-body">
-                      <p className="product-card-cat">{p.category}</p>
-                      <h3 className="product-card-name">
-                        <Link href={`/store/${p.slug}`}>{p.name}</Link>
-                      </h3>
-                      {p.sku && <p className="product-card-sku">SKU: {p.sku}</p>}
-                      {p.price && <p className="product-card-price">₹{p.price}/{p.unit || 'unit'}</p>}
-                      <div className="product-card-footer">
-                        <Link href={`/store/${p.slug}`} className="btn btn-primary btn-sm">View Details</Link>
-                        <a href={`https://wa.me/${WA}?text=${encodeURIComponent(`Hi, I'm interested in ${p.name}${p.sku ? ` (${p.sku})` : ''}. Please share availability and pricing.`)}`}
-                          className="btn btn-wa btn-sm" target="_blank" rel="noopener noreferrer">Order</a>
-                      </div>
                     </div>
-                  </article>
+                    <p className="home-product-name">{p.name}</p>
+                    {p.price && <p className="home-product-price">₹{p.price}/{p.unit || 'unit'}</p>}
+                  </Link>
                 )
               })}
             </div>
