@@ -57,7 +57,6 @@ function ProductCard({ p, quote, onQtyChange }) {
                 {p.sku && <span className="sc-sku"> ({p.sku})</span>}
               </h2>
             </Link>
-            {p.description && <p className="sc-sub">{p.description.slice(0, 80)}</p>}
             <div className="sc-meta-row">
               {p.price && <span className="sc-price">Price: ₹{p.price}/{p.unit || 'unit'}</span>}
               {p.min_qty && <span className="sc-minqty">Min Qty: {p.min_qty} {p.unit || ''}</span>}
@@ -315,9 +314,13 @@ export default function Store({ products, categories, activeCategory, settings }
               <h3>No products found</h3>
               <p>{search ? 'Try a different search term.' : <>Add products from the <Link href="/admin/products">admin panel</Link>.</>}</p>
             </div>
-          ) : filtered.map(p => (
-            <ProductCard key={p.id} p={p} quote={quote} onQtyChange={upsertQuote} />
-          ))}
+          ) : (
+            <div className="sc-product-list">
+              {filtered.map(p => (
+                <ProductCard key={p.id} p={p} quote={quote} onQtyChange={upsertQuote} />
+              ))}
+            </div>
+          )}
         </main>
 
         <aside className="sc-quote-panel">
