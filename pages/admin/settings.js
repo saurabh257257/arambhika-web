@@ -2,6 +2,10 @@ import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { getSession } from '../../lib/session'
 
+function heroImagesFromVals(vals) {
+  try { return JSON.parse(vals.hero_images || '[]') } catch { return [] }
+}
+
 const SECTIONS = [
   {
     title: 'Brand',
@@ -61,10 +65,12 @@ const SECTIONS = [
 
 export default function AdminSettings({ initialSettings }) {
   const [vals, setVals]         = useState(initialSettings)
-  const [saving, setSaving]     = useState(false)
-  const [msg, setMsg]           = useState('')
-  const [logoUploading, setLogoUploading] = useState(false)
-  const logoFileRef             = useRef(null)
+  const [saving, setSaving]           = useState(false)
+  const [msg, setMsg]                 = useState('')
+  const [logoUploading, setLogoUploading]           = useState(false)
+  const [carouselUploading, setCarouselUploading]   = useState(false)
+  const logoFileRef       = useRef(null)
+  const carouselFileRef   = useRef(null)
 
   const set = (key, value) => setVals(v => ({ ...v, [key]: value }))
 
@@ -82,6 +88,32 @@ export default function AdminSettings({ initialSettings }) {
     if (!r.ok) { alert(d.error || 'Upload failed'); return }
     set('brand_logo', d.url)
     logoFileRef.current.value = ''
+  }
+
+  const uploadCarouselImages = async (e) => {
+    const files = Array.from(e.target.files)
+    if (!files.length) return
+    setCarouselUploading(true)
+    const current = heroImagesFromVals(vals)
+    let idx = current.length + 1
+    const newUrls = []
+    for (const file of files) {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('prefix', 'hero_carousel')
+      fd.append('imgIndex', String(idx++))
+      const r = await fetch('/api/upload', { method: 'POST', body: fd })
+      const d = await r.json()
+      if (r.ok) newUrls.push(d.url)
+    }
+    set('hero_images', JSON.stringify([...current, ...newUrls]))
+    setCarouselUploading(false)
+    e.target.value = ''
+  }
+
+  const removeCarouselImage = (i) => {
+    const next = heroImagesFromVals(vals).filter((_, n) => n !== i)
+    set('hero_images', JSON.stringify(next))
   }
 
   const save = async () => {
@@ -180,6 +212,36 @@ export default function AdminSettings({ initialSettings }) {
             </div>
           </div>
         ))}
+
+        {/* Hero Carousel Images */}
+        <div className="settings-section">
+          <h3 className="settings-section-title"><span>🖼</span> Hero Carousel Images</h3>
+          <div className="settings-fields">
+            <div className="settings-field">
+              <label className="settings-label">Auto-rotating photos shown on the right side of the homepage hero</label>
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', alignItems: 'center' }}>
+                <input type="file" accept="image/*" multiple style={{ display: 'none' }} ref={carouselFileRef} onChange={uploadCarouselImages} />
+                <button className="btn btn-primary btn-sm" type="button" disabled={carouselUploading}
+                  onClick={() => carouselFileRef.current?.click()}>
+                  {carouselUploading ? 'Uploading…' : '+ Add Images'}
+                </button>
+                <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Upload multiple — they rotate every 4 seconds</span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {heroImagesFromVals(vals).map((url, i) => (
+                  <div key={i} style={{ position: 'relative' }}>
+                    <img src={url} alt="" style={{ width: 130, height: 86, objectFit: 'cover', borderRadius: 6, border: '1px solid var(--border)', display: 'block' }} />
+                    <button onClick={() => removeCarouselImage(i)}
+                      style={{ position: 'absolute', top: 3, right: 3, background: '#dc2626', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: 11, lineHeight: '20px', textAlign: 'center', padding: 0 }}>
+                      ✕
+                    </button>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--muted)', display: 'block', marginTop: 2 }}>Slide {i + 1}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div style={{ marginTop: '2rem', textAlign: 'right' }}>
           <button className="btn btn-primary" onClick={save} disabled={saving}

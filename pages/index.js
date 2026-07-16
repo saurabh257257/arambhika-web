@@ -1,22 +1,50 @@
 import Link from 'next/link'
 import Layout from '../components/Layout'
+import { useState, useEffect } from 'react'
 
-export default function Home({ featured, categories, settings }) {
+function HeroCarousel({ images }) {
+  const [idx, setIdx] = useState(0)
+  useEffect(() => {
+    if (images.length < 2) return
+    const t = setInterval(() => setIdx(i => (i + 1) % images.length), 4000)
+    return () => clearInterval(t)
+  }, [images.length])
+  if (!images.length) return <div className="hero-carousel-empty" />
+  return (
+    <div className="hero-carousel">
+      {images.map((src, i) => (
+        <img key={i} src={src} alt="" className={i === idx ? 'active' : ''} />
+      ))}
+      {images.length > 1 && (
+        <div className="carousel-dots">
+          {images.map((_, i) => (
+            <span key={i} className={`carousel-dot${i === idx ? ' active' : ''}`} onClick={() => setIdx(i)} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function Home({ featured, categories, settings, heroImages }) {
   const WA = settings.wa_number || '919315545821'
 
   return (
     <Layout settings={settings}>
       {/* Hero */}
       <section className="hero">
-        <h1>{settings.hero_title || 'Nickel Strips & Copper Busbars for Battery Manufacturers'}</h1>
-        <p>{settings.hero_subtitle || 'Manufacturer and distributor based in Greater Noida. Serving EV, ESS, and battery pack makers across India.'}</p>
-        <div className="hero-actions">
-          <Link href="/store" className="btn btn-primary">{settings.hero_cta || 'Browse Products'}</Link>
-          <a href={`https://wa.me/${WA}?text=Hi%2C%20I%20want%20to%20enquire%20about%20your%20products.`}
-            className="btn btn-wa" target="_blank" rel="noopener noreferrer">
-            WhatsApp Us
-          </a>
+        <div className="hero-content">
+          <h1>{settings.hero_title || 'Nickel Strips & Copper Busbars for Battery Manufacturers'}</h1>
+          <p>{settings.hero_subtitle || 'Manufacturer and distributor based in Greater Noida. Serving EV, ESS, and battery pack makers across India.'}</p>
+          <div className="hero-actions">
+            <Link href="/store" className="btn btn-primary">{settings.hero_cta || 'Browse Products'}</Link>
+            <a href={`https://wa.me/${WA}?text=Hi%2C%20I%20want%20to%20enquire%20about%20your%20products.`}
+              className="btn btn-wa" target="_blank" rel="noopener noreferrer">
+              WhatsApp Us
+            </a>
+          </div>
         </div>
+        <HeroCarousel images={heroImages} />
       </section>
 
       {/* Categories */}
@@ -118,6 +146,9 @@ export async function getServerSideProps() {
     const catOrder = catData.map(c => c.category)
     allProducts.forEach(p => { if (p.category && !catOrder.includes(p.category)) catOrder.push(p.category) })
 
+    let heroImages = []
+    try { heroImages = JSON.parse(settings.hero_images || '[]') } catch {}
+
     return {
       props: {
         featured: allProducts.slice(0, 8).map(p => ({ ...p })),
@@ -125,9 +156,10 @@ export async function getServerSideProps() {
           .filter(c => allProducts.some(p => p.category === c.category))
           .map(c => ({ category: c.category, image: c.image || null })),
         settings,
+        heroImages,
       },
     }
   } catch {
-    return { props: { featured: [], categories: [], settings: {} } }
+    return { props: { featured: [], categories: [], settings: {}, heroImages: [] } }
   }
 }
