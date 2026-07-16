@@ -37,6 +37,13 @@ const SECTIONS = [
     ],
   },
   {
+    title: 'Homepage — Featured Products',
+    icon: '⭐',
+    fields: [
+      { key: 'featured_count', label: 'Number of products to show on home page', type: 'number', placeholder: '8' },
+    ],
+  },
+  {
     title: 'Homepage — Bottom CTA',
     icon: '💬',
     fields: [
@@ -200,9 +207,10 @@ export default function AdminSettings({ initialSettings }) {
                   ) : (
                     <input
                       className="settings-input"
-                      type="text"
+                      type={field.type === 'number' ? 'number' : 'text'}
                       value={vals[field.key] || ''}
                       placeholder={field.placeholder}
+                      min={field.type === 'number' ? 1 : undefined}
                       onChange={e => set(field.key, e.target.value)}
                     />
                   )}

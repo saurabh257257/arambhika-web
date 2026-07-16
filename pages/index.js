@@ -182,23 +182,19 @@ export default function Home({ featured, categories, settings, heroImages }) {
 
 export async function getServerSideProps() {
   try {
-    const { getAllProductsSorted, getCategoriesOrdered, getSettings } = require('../lib/db')
-    const allProducts = getAllProductsSorted()
-    const catData = getCategoriesOrdered()
-    const settings = getSettings()
-
-    const catOrder = catData.map(c => c.category)
-    allProducts.forEach(p => { if (p.category && !catOrder.includes(p.category)) catOrder.push(p.category) })
+    const { getFeaturedProducts, getCategoriesOrdered, getSettings } = require('../lib/db')
+    const settings   = getSettings()
+    const count      = Math.max(1, Math.min(24, Number(settings.featured_count) || 8))
+    const featured   = getFeaturedProducts(count)
+    const catData    = getCategoriesOrdered()
 
     let heroImages = []
     try { heroImages = JSON.parse(settings.hero_images || '[]') } catch {}
 
     return {
       props: {
-        featured: allProducts.slice(0, 8).map(p => ({ ...p })),
-        categories: catData
-          .filter(c => allProducts.some(p => p.category === c.category))
-          .map(c => ({ category: c.category, image: c.image || null })),
+        featured: featured.map(p => ({ ...p })),
+        categories: catData.map(c => ({ category: c.category, image: c.image || null })),
         settings,
         heroImages,
       },

@@ -29,6 +29,7 @@ function initRow(p) {
     brand:        p.brand        || 'Arambhika Enablers',
     material:     p.material     || '',
     dimensions:   p.dimensions   || '',
+    featured:     p.featured     ?? 0,
     _dirty: false, _saving: false, _expanded: false, _imgOpen: false, _isNew: false,
   }
 }
@@ -194,6 +195,16 @@ function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isF
             onChange={e => f('brand', e.target.value)} />
         </td>
 
+        {/* Featured on home */}
+        <td style={{ width: 56, textAlign: 'center' }}>
+          <label title="Show on home page featured section" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <input type="checkbox" checked={!!row.featured}
+              onChange={e => f('featured', e.target.checked ? 1 : 0)}
+              style={{ width: 16, height: 16, cursor: 'pointer' }} />
+            <span style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>Home</span>
+          </label>
+        </td>
+
         {/* link (auto) */}
         <td style={{ width: 36, textAlign: 'center' }}>
           {!row._isNew && row.slug && (
@@ -300,6 +311,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
       material: row.material || null,
       dimensions: row.dimensions || null,
       brand: row.brand || 'Arambhika Enablers',
+      featured: row.featured ? 1 : 0,
     }
     try {
       if (row._isNew) {
