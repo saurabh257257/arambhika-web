@@ -199,7 +199,7 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
         </div>
 
         {/* Quote panel */}
-        <aside className="sc-quote-panel pd-quote-panel">
+        <aside className="pd-quote-panel">
           <div className="sc-quote-header">
             <span className="sc-quote-title">View Quote</span>
             <button className="sc-quote-clear" onClick={() => setQuote([])}>Clear</button>
