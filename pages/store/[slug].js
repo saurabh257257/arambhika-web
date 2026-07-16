@@ -168,12 +168,13 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
               )}
 
               <div className="pd-cta-row">
-                <div className="sc-qty" style={{ height: 48 }}>
-                  <button onClick={() => changeQty(-1)} style={{ fontSize: '1.2rem', padding: '0 1rem' }}>−</button>
-                  <span style={{ minWidth: 80, fontSize: '1rem' }}>{currentQty} {product.unit || 'unit'}</span>
-                  <button onClick={() => changeQty(+1)} style={{ fontSize: '1.2rem', padding: '0 1rem' }}>+</button>
+                <div className="sc-qty">
+                  <button onClick={() => changeQty(-1)}>−</button>
+                  <span>{currentQty} {product.unit || 'unit'}</span>
+                  <button onClick={() => changeQty(+1)}>+</button>
                 </div>
-                <button className="sc-add-btn pd-add-quote-btn"
+                <button
+                  className="sc-add-btn"
                   style={inQuote ? { background: '#16a34a' } : {}}
                   onClick={() => upsertQuote(currentQty)}>
                   {inQuote ? '✓ In Quote' : 'Add to Quote'}

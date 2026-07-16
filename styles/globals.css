@@ -738,12 +738,58 @@ a { color: inherit; text-decoration: none; }
 .pd-layout { display: grid; grid-template-columns: 480px 1fr; gap: 3rem; padding: 2rem 0 4rem; align-items: start; }
 
 /* Carousel */
-.pd-carousel { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--off); }
-.pd-img-main { width: 100%; height: 380px; object-fit: cover; display: block; }
-.pd-img-empty { height: 380px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 0.9rem; }
+.pd-carousel { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: #fff; }
+.pd-img-main { width: 100%; height: 420px; object-fit: contain; display: block; padding: 1rem; background: #fff; }
+.pd-img-empty { height: 420px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 0.9rem; }
 .pd-thumbs { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
-.pd-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 2px solid var(--border); cursor: pointer; transition: border-color 0.15s; }
+.pd-thumb { width: 76px; height: 76px; object-fit: contain; border-radius: 6px; border: 2px solid var(--border); cursor: pointer; transition: border-color 0.15s; background: #fff; padding: 4px; }
 .pd-thumb.active { border-color: var(--accent); }
+
+/* Carousel nav arrows */
+.sc-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.92); border: 1px solid var(--border);
+  border-radius: 50%; width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; cursor: pointer; color: #374151;
+  transition: all 0.15s; box-shadow: 0 1px 6px rgba(0,0,0,0.12); z-index: 5;
+}
+.sc-arrow:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.sc-arrow-l { left: 10px; }
+.sc-arrow-r { right: 10px; }
+.sc-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
+.sc-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.22); cursor: pointer; transition: background 0.15s; }
+.sc-dot.active { background: var(--accent); }
+
+/* Availability badge */
+.sc-avail { display: inline-block; font-size: 0.78rem; font-weight: 700; padding: 0.3rem 0.85rem; border-radius: 100px; background: #dcfce7; color: #16a34a; white-space: nowrap; flex-shrink: 0; }
+
+/* Qty stepper on detail page */
+.sc-qty {
+  display: flex; align-items: center;
+  border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; height: 44px;
+}
+.sc-qty button {
+  background: var(--off); border: none; padding: 0 1rem;
+  font-size: 1.15rem; cursor: pointer; color: #374151; height: 100%; line-height: 1;
+  transition: background 0.12s;
+}
+.sc-qty button:hover { background: var(--border); }
+.sc-qty span {
+  padding: 0 0.9rem; font-size: 0.92rem; font-weight: 600;
+  min-width: 72px; text-align: center; background: #fff; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  border-left: 1.5px solid var(--border); border-right: 1.5px solid var(--border);
+}
+
+/* Add to quote button on detail page */
+.sc-add-btn {
+  background: #f59e0b; color: #fff; border: none;
+  padding: 0 1.5rem; border-radius: 8px; height: 44px;
+  font-size: 0.92rem; font-weight: 700; cursor: pointer;
+  transition: background 0.15s; white-space: nowrap;
+}
+.sc-add-btn:hover { background: #d97706; }
 
 /* Info col */
 .pd-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.75rem; }
@@ -830,8 +876,10 @@ a { color: inherit; text-decoration: none; }
   .pd-layout { grid-template-columns: 1fr; gap: 1rem; }
   .pd-img-main { height: 280px; }
   .pd-name { font-size: 1.15rem; }
-  .pd-cta-row { flex-direction: column; }
-  .pd-add-quote-btn, .pd-wa-btn { width: 100%; text-align: center; padding: 0.75rem; }
+  .pd-cta-row { flex-direction: column; align-items: stretch; }
+  .sc-add-btn, .pd-wa-btn { width: 100%; text-align: center; padding: 0.75rem; height: auto; }
+  .pd-img-main { height: 280px; }
+  .pd-img-empty { height: 280px; }
   .pd-topbar .container { padding: 0 0.75rem; }
   .pd-breadcrumb { display: none; }
 
