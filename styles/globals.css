@@ -446,12 +446,12 @@ a { color: inherit; text-decoration: none; }
 .sc-dot.active { background: #fff; }
 
 /* Card body */
-.sc-body { padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; }
-.sc-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
-.sc-info { flex: 1; }
-.sc-name { font-size: 0.97rem; font-weight: 700; line-height: 1.4; color: #1a1a2e; }
+.sc-body { padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; overflow: hidden; min-width: 0; box-sizing: border-box; }
+.sc-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; overflow: hidden; min-width: 0; }
+.sc-info { flex: 1; min-width: 0; overflow: hidden; }
+.sc-name { font-size: 0.97rem; font-weight: 700; line-height: 1.4; color: #1a1a2e; word-break: break-word; }
 .sc-sku { font-size: 0.82rem; color: var(--accent); font-weight: 600; }
-.sc-sub { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
+.sc-sub { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
 .sc-meta-row { display: flex; gap: 1.25rem; margin-top: 0.35rem; }
 .sc-price { font-size: 0.88rem; font-weight: 700; color: var(--accent); }
 .sc-minqty { font-size: 0.88rem; font-weight: 700; color: var(--accent); }
