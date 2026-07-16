@@ -109,7 +109,9 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
               <div className="pd-carousel">
                 {images.length > 0 ? (
                   <>
-                    <img src={images[imgIdx]} alt={`${product.name} - image ${imgIdx + 1}`} className="pd-img-main" />
+                    <div className="pd-img-frame">
+                  <img src={images[imgIdx]} alt={`${product.name} - image ${imgIdx + 1}`} className="pd-img-main" />
+                </div>
                     {images.length > 1 && (
                       <>
                         <button className="sc-arrow sc-arrow-l" onClick={() => setImgIdx(i => (i - 1 + images.length) % images.length)}>&#8249;</button>
