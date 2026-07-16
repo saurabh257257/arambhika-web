@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
 
-/* ── Shared quote helpers (localStorage) ── */
 export function loadQuote() {
   try { return JSON.parse(localStorage.getItem('arambhika_quote') || '[]') } catch { return [] }
 }
@@ -11,7 +10,7 @@ export function saveQuote(q) {
   try { localStorage.setItem('arambhika_quote', JSON.stringify(q)) } catch {}
 }
 
-/* ── Product card ── */
+/* ── Product card — horizontal on desktop, vertical on mobile ── */
 function ProductCard({ p, quote, onQtyChange }) {
   const images  = JSON.parse(p.images || '[]')
   const minQty  = Number(p.min_qty) || 1
@@ -25,61 +24,68 @@ function ProductCard({ p, quote, onQtyChange }) {
     onQtyChange(p, next)
   }
 
+  const available = p.availability !== 'out of stock'
+
   return (
-    <article className="sc-card">
-      <Link href={`/store/${p.slug}`} className="sc-img-wrap">
+    <article className="pcard">
+      {/* Image */}
+      <Link href={`/store/${p.slug}`} className="pcard-img-wrap">
         {images.length > 0 ? (
           <>
-            <img src={images[imgIdx]} alt={p.name} className="sc-img" loading="lazy" />
+            <img src={images[imgIdx]} alt={p.name} className="pcard-img" loading="lazy" />
             {images.length > 1 && (
               <>
-                <button className="sc-arrow sc-arrow-l" onClick={e => { e.preventDefault(); e.stopPropagation(); setImgIdx(i => (i - 1 + images.length) % images.length) }}>&#8249;</button>
-                <button className="sc-arrow sc-arrow-r" onClick={e => { e.preventDefault(); e.stopPropagation(); setImgIdx(i => (i + 1) % images.length) }}>&#8250;</button>
-                <div className="sc-dots">
+                <button className="pcard-arrow pcard-arrow-l" onClick={e => { e.preventDefault(); e.stopPropagation(); setImgIdx(i => (i - 1 + images.length) % images.length) }}>‹</button>
+                <button className="pcard-arrow pcard-arrow-r" onClick={e => { e.preventDefault(); e.stopPropagation(); setImgIdx(i => (i + 1) % images.length) }}>›</button>
+                <div className="pcard-dots">
                   {images.map((_, i) => (
-                    <span key={i} className={`sc-dot${i === imgIdx ? ' active' : ''}`} onClick={e => { e.preventDefault(); e.stopPropagation(); setImgIdx(i) }} />
+                    <span key={i} className={`pcard-dot${i === imgIdx ? ' active' : ''}`} onClick={e => { e.preventDefault(); e.stopPropagation(); setImgIdx(i) }} />
                   ))}
                 </div>
               </>
             )}
           </>
         ) : (
-          <div className="sc-img-empty">No image</div>
+          <div className="pcard-img-empty">No image</div>
         )}
       </Link>
 
-      <div className="sc-body">
-        <div className="sc-top-row">
-          <div className="sc-info">
-            <Link href={`/store/${p.slug}`} className="sc-name-link">
-              <h2 className="sc-name">
-                {p.name}
-                {p.sku && <span className="sc-sku"> ({p.sku})</span>}
-              </h2>
+      {/* Content */}
+      <div className="pcard-body">
+        <div className="pcard-header">
+          <div>
+            <p className="pcard-category">{p.category}</p>
+            <Link href={`/store/${p.slug}`} className="pcard-name-link">
+              <h2 className="pcard-name">{p.name}{p.sku && <span className="pcard-sku"> · {p.sku}</span>}</h2>
             </Link>
-            <div className="sc-meta-row">
-              {p.price && <span className="sc-price">Price: ₹{p.price}/{p.unit || 'unit'}</span>}
-              {p.min_qty && <span className="sc-minqty">Min Qty: {p.min_qty} {p.unit || ''}</span>}
-            </div>
           </div>
-          <span className="sc-avail">{p.availability === 'out of stock' ? 'Out of Stock' : 'Available'}</span>
+          <span className={`pcard-badge ${available ? 'pcard-badge-in' : 'pcard-badge-out'}`}>
+            {available ? 'Available' : 'Out of Stock'}
+          </span>
         </div>
 
-        <button className="sc-expand" onClick={() => setExpanded(v => !v)}>
-          <span className="sc-expand-icon">{expanded ? '−' : '+'}</span>
-          More details
-        </button>
-        {expanded && p.description && <p className="sc-desc">{p.description}</p>}
+        <div className="pcard-meta">
+          {p.price && <span className="pcard-price">₹{p.price}<span className="pcard-unit">/{p.unit || 'unit'}</span></span>}
+          {p.min_qty && <span className="pcard-minqty">Min Qty: <strong>{p.min_qty} {p.unit || ''}</strong></span>}
+        </div>
 
-        <div className="sc-actions">
-          <div className="sc-qty">
+        {p.description && (
+          <>
+            <p className={`pcard-desc${expanded ? ' pcard-desc-open' : ''}`}>{p.description}</p>
+            <button className="pcard-toggle" onClick={() => setExpanded(v => !v)}>
+              {expanded ? '− Less' : '+ More details'}
+            </button>
+          </>
+        )}
+
+        <div className="pcard-actions">
+          <div className="pcard-qty">
             <button onClick={() => changeQty(-1)}>−</button>
             <span>{qty} {p.unit || 'unit'}</span>
             <button onClick={() => changeQty(+1)}>+</button>
           </div>
           <button
-            className="sc-add-btn"
-            style={inQuote ? { background: '#16a34a' } : {}}
+            className={`pcard-add-btn${inQuote ? ' pcard-add-btn-in' : ''}`}
             onClick={() => onQtyChange(p, qty)}
           >
             {inQuote ? '✓ In Quote' : 'Add to Quote'}
@@ -90,7 +96,7 @@ function ProductCard({ p, quote, onQtyChange }) {
   )
 }
 
-/* ── Quote panel (reusable) ── */
+/* ── Quote panel ── */
 function QuotePanel({ quote, onRemove, onQtyChange, onClear, WA }) {
   const [mobile, setMobile] = useState('')
 
@@ -103,44 +109,46 @@ function QuotePanel({ quote, onRemove, onQtyChange, onClear, WA }) {
   }
 
   return (
-    <>
-      <div className="sc-quote-header">
-        <span className="sc-quote-title">View Quote ({quote.length})</span>
-        <button className="sc-quote-clear" onClick={onClear}>Clear</button>
+    <div className="qp-inner">
+      <div className="qp-head">
+        <span className="qp-title">Quote ({quote.length})</span>
+        <button className="qp-clear" onClick={onClear}>Clear</button>
       </div>
+
       {quote.length === 0 ? (
-        <p className="sc-quote-empty">No items yet. Click "Add to Quote" or use +/− to add.</p>
+        <p className="qp-empty">No items yet. Add products to build your quote.</p>
       ) : (
-        <ul className="sc-quote-list">
+        <ul className="qp-list">
           {quote.map(item => (
-            <li key={item.id} className="sc-quote-item">
-              <div style={{ flex: 1 }}>
-                <strong style={{ fontSize: '0.82rem' }}>{item.name}</strong>
-                {item.sku && <span className="sc-quote-sku"> ({item.sku})</span>}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                  <button className="sc-mini-qty-btn" onClick={() => onQtyChange(item, Math.max(Number(item.min_qty)||1, item.qty - 1))}>−</button>
-                  <span className="sc-quote-qty">{item.qty} {item.unit || ''}</span>
-                  <button className="sc-mini-qty-btn" onClick={() => onQtyChange(item, item.qty + 1)}>+</button>
+            <li key={item.id} className="qp-item">
+              <div className="qp-item-info">
+                <strong>{item.name}</strong>
+                {item.sku && <span className="qp-sku"> ({item.sku})</span>}
+                <div className="qp-item-qty">
+                  <button className="qp-qty-btn" onClick={() => onQtyChange(item, Math.max(Number(item.min_qty)||1, item.qty - 1))}>−</button>
+                  <span>{item.qty} {item.unit || ''}</span>
+                  <button className="qp-qty-btn" onClick={() => onQtyChange(item, item.qty + 1)}>+</button>
                 </div>
               </div>
-              <button className="sc-quote-remove" onClick={() => onRemove(item.id)}>✕</button>
+              <button className="qp-remove" onClick={() => onRemove(item.id)}>✕</button>
             </li>
           ))}
         </ul>
       )}
-      <div className="sc-quote-mobile-wrap">
-        <label className="sc-phone-label">Mobile Number</label>
-        <div className="sc-phone-cc">IN India (+91)</div>
-        <input className="sc-phone-input" type="tel" placeholder="Mobile number"
+
+      <div className="qp-phone">
+        <label className="qp-phone-label">Your Mobile Number</label>
+        <div className="qp-phone-cc">🇮🇳 +91</div>
+        <input className="qp-phone-input" type="tel" placeholder="Enter mobile number"
           value={mobile} onChange={e => setMobile(e.target.value)} />
       </div>
-      <button className="sc-proceed-btn" onClick={proceed}>Proceed on WhatsApp</button>
-      <p className="sc-proceed-hint">Opens WhatsApp with your quote details.</p>
-    </>
+      <button className="qp-proceed" onClick={proceed}>Proceed on WhatsApp</button>
+      <p className="qp-hint">We'll send your quote details on WhatsApp.</p>
+    </div>
   )
 }
 
-/* ── Search suggestion dropdown ── */
+/* ── Search box ── */
 function SearchBox({ products, search, setSearch }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
@@ -161,15 +169,7 @@ function SearchBox({ products, search, setSearch }) {
     return () => document.removeEventListener('mousedown', onClickOutside)
   }, [])
 
-  function pick(p) {
-    setSearch('')
-    setOpen(false)
-    router.push(`/store/${p.slug}`)
-  }
-
-  function onKeyDown(e) {
-    if (e.key === 'Escape') { setOpen(false); setSearch('') }
-  }
+  function pick(p) { setSearch(''); setOpen(false); router.push(`/store/${p.slug}`) }
 
   return (
     <div className="sc-search-wrap" ref={wrapRef}>
@@ -180,7 +180,7 @@ function SearchBox({ products, search, setSearch }) {
         value={search}
         onChange={e => { setSearch(e.target.value); setOpen(true) }}
         onFocus={() => search && setOpen(true)}
-        onKeyDown={onKeyDown}
+        onKeyDown={e => e.key === 'Escape' && (setOpen(false), setSearch(''))}
         autoComplete="off"
       />
       {open && suggestions.length > 0 && (
@@ -204,11 +204,60 @@ function SearchBox({ products, search, setSearch }) {
               </div>
             )
           })}
-          <div className="sc-suggest-footer">
-            Press Enter to search all · Esc to close
-          </div>
+          <div className="sc-suggest-footer">Esc to close</div>
         </div>
       )}
+    </div>
+  )
+}
+
+/* ── Category sidebar (desktop) ── */
+function CategorySidebar({ categories, activeCategory }) {
+  return (
+    <aside className="cat-sidebar">
+      <h3 className="cat-sidebar-title">Categories</h3>
+      <ul className="cat-sidebar-list">
+        <li>
+          <Link href="/store" className={`cat-sidebar-item${!activeCategory ? ' active' : ''}`}>
+            <span className="cat-sidebar-all">All</span>
+            <span className="cat-sidebar-name">All Products</span>
+          </Link>
+        </li>
+        {categories.map(c => (
+          <li key={c.category}>
+            <Link href={`/store?category=${encodeURIComponent(c.category)}`}
+              className={`cat-sidebar-item${activeCategory === c.category ? ' active' : ''}`}>
+              {c.image
+                ? <img src={c.image} alt={c.category} className="cat-sidebar-img" />
+                : <span className="cat-sidebar-placeholder">{c.category.slice(0,2).toUpperCase()}</span>
+              }
+              <span className="cat-sidebar-name">{c.category}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  )
+}
+
+/* ── Mobile category strip ── */
+function MobileCatStrip({ categories, activeCategory }) {
+  return (
+    <div className="mob-catstrip">
+      <Link href="/store" className={`mob-catpill${!activeCategory ? ' active' : ''}`}>
+        <span className="mob-catpill-icon mob-catpill-all">All</span>
+        <span className="mob-catpill-label">All</span>
+      </Link>
+      {categories.map(c => (
+        <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
+          className={`mob-catpill${activeCategory === c.category ? ' active' : ''}`}>
+          {c.image
+            ? <img src={c.image} alt={c.category} className="mob-catpill-img" />
+            : <span className="mob-catpill-icon">{c.category.slice(0,2).toUpperCase()}</span>
+          }
+          <span className="mob-catpill-label">{c.category}</span>
+        </Link>
+      ))}
     </div>
   )
 }
@@ -219,30 +268,21 @@ export default function Store({ products, categories, activeCategory, settings }
   const [search, setSearch]       = useState('')
   const [quote, setQuote]         = useState([])
   const [showQuote, setShowQuote] = useState(false)
-  const catbarRef                 = useRef(null)
 
   useEffect(() => { setQuote(loadQuote()) }, [])
   useEffect(() => { saveQuote(quote) }, [quote])
 
-const upsertQuote = useCallback((product, qty) => {
+  const upsertQuote = useCallback((product, qty) => {
     setQuote(prev => {
       const idx = prev.findIndex(x => x.id === product.id)
       if (idx >= 0) {
-        const next = [...prev]
-        next[idx] = { ...next[idx], qty }
-        return next
+        const next = [...prev]; next[idx] = { ...next[idx], qty }; return next
       }
       return [...prev, { ...product, qty }]
     })
   }, [])
 
-  const removeFromQuote = useCallback((id) => {
-    setQuote(prev => prev.filter(x => x.id !== id))
-  }, [])
-
-  const scrollCat = (dir) => {
-    if (catbarRef.current) catbarRef.current.scrollBy({ left: dir * 240, behavior: 'smooth' })
-  }
+  const removeFromQuote = useCallback((id) => setQuote(prev => prev.filter(x => x.id !== id)), [])
 
   const filtered = products.filter(p => {
     const q = search.toLowerCase()
@@ -253,43 +293,34 @@ const upsertQuote = useCallback((product, qty) => {
     <Layout title="Product Store" settings={settings}
       description="Browse our full catalog of nickel strips, copper busbars, and battery connectors.">
 
-      {/* Sticky search bar with suggestion dropdown */}
+      {/* Sticky search */}
       <div className="sc-searchbar-sticky">
         <SearchBox products={products} search={search} setSearch={setSearch} />
       </div>
 
-      <div className="sc-layout2">
-        <main className="sc-main2">
-          {/* Sticky category strip inside product column */}
-          <div className="sc-catbar-wrap">
-            <button className="sc-catbar-arrow" onClick={() => scrollCat(-1)}>&#8249;</button>
-            <div className="sc-catbar2" ref={catbarRef}>
-              <Link href="/store" className={`sc-catcard${!activeCategory ? ' active' : ''}`}>
-                <div className="sc-catcard-img sc-catcard-all">All</div>
-                <span className="sc-catcard-label">All</span>
-              </Link>
-              {categories.map(c => (
-                <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
-                  className={`sc-catcard${activeCategory === c.category ? ' active' : ''}`}>
-                  <div className="sc-catcard-img">
-                    {c.image
-                      ? <img src={c.image} alt={c.category} />
-                      : <span>{c.category.slice(0,2).toUpperCase()}</span>}
-                  </div>
-                  <span className="sc-catcard-label">{c.category}</span>
-                </Link>
-              ))}
-            </div>
-            <button className="sc-catbar-arrow" onClick={() => scrollCat(1)}>&#8250;</button>
-          </div>
+      {/* Mobile category strip */}
+      <div className="mob-catstrip-wrap">
+        <MobileCatStrip categories={categories} activeCategory={activeCategory} />
+      </div>
 
+      {/* 3-column layout */}
+      <div className="store-layout">
+        <CategorySidebar categories={categories} activeCategory={activeCategory} />
+
+        <main className="store-main">
+          {activeCategory && (
+            <div className="store-cat-header">
+              <h1 className="store-cat-title">{activeCategory}</h1>
+              <Link href="/store" className="store-cat-clear">✕ Clear filter</Link>
+            </div>
+          )}
           {filtered.length === 0 ? (
             <div className="empty-state">
               <h3>No products found</h3>
               <p>{search ? 'Try a different search term.' : <>Add products from the <Link href="/admin/products">admin panel</Link>.</>}</p>
             </div>
           ) : (
-            <div className="sc-product-list">
+            <div className="pcard-list">
               {filtered.map(p => (
                 <ProductCard key={p.id} p={p} quote={quote} onQtyChange={upsertQuote} />
               ))}
@@ -297,7 +328,7 @@ const upsertQuote = useCallback((product, qty) => {
           )}
         </main>
 
-        <aside className="sc-quote-panel">
+        <aside className="store-quote-col">
           <QuotePanel quote={quote} WA={WA}
             onRemove={removeFromQuote}
             onQtyChange={(item, qty) => upsertQuote(item, qty)}
@@ -305,7 +336,7 @@ const upsertQuote = useCallback((product, qty) => {
         </aside>
       </div>
 
-      {/* Mobile floating button */}
+      {/* Mobile floating quote button */}
       <button className="sc-float-btn" onClick={() => setShowQuote(v => !v)}>
         View Quote ({quote.length})
       </button>
@@ -316,7 +347,7 @@ const upsertQuote = useCallback((product, qty) => {
             onRemove={removeFromQuote}
             onQtyChange={(item, qty) => upsertQuote(item, qty)}
             onClear={() => setQuote([])} />
-          <button className="sc-quote-clear" style={{ marginTop: '0.75rem', width: '100%' }}
+          <button className="qp-clear" style={{ marginTop: '0.75rem', width: '100%' }}
             onClick={() => setShowQuote(false)}>✕ Close</button>
         </div>
       )}
@@ -335,20 +366,13 @@ export async function getServerSideProps({ query }) {
     const catOrder = catData.map(c => c.category)
     allProducts.forEach(p => { if (p.category && !catOrder.includes(p.category)) catOrder.push(p.category) })
 
-    const products   = activeCategory ? allProducts.filter(p => p.category === activeCategory) : allProducts
+    const products    = activeCategory ? allProducts.filter(p => p.category === activeCategory) : allProducts
     const catImageMap = Object.fromEntries(catData.map(c => [c.category, c.image || null]))
-    const categories = catOrder
+    const categories  = catOrder
       .filter(c => allProducts.some(p => p.category === c))
       .map(c => ({ category: c, image: catImageMap[c] || null }))
 
-    return {
-      props: {
-        products: products.map(p => ({ ...p })),
-        categories,
-        activeCategory,
-        settings,
-      },
-    }
+    return { props: { products: products.map(p => ({ ...p })), categories, activeCategory, settings } }
   } catch {
     return { props: { products: [], categories: [], activeCategory: null, settings: {} } }
   }
