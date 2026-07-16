@@ -202,38 +202,40 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
 
         {/* Quote panel */}
         <aside className="pd-quote-panel">
-          <div className="sc-quote-header">
-            <span className="sc-quote-title">View Quote</span>
-            <button className="sc-quote-clear" onClick={() => setQuote([])}>Clear</button>
-          </div>
-          {quote.length === 0 ? (
-            <p className="sc-quote-empty">No items added yet. Use +/− to add.</p>
-          ) : (
-            <ul className="sc-quote-list">
-              {quote.map(item => (
-                <li key={item.id} className="sc-quote-item">
-                  <div style={{ flex: 1 }}>
-                    <strong style={{ fontSize: '0.82rem' }}>{item.name}</strong>
-                    {item.sku && <span className="sc-quote-sku"> ({item.sku})</span>}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                      <button className="sc-mini-qty-btn" onClick={() => updateItemQty(item, Math.max(Number(item.min_qty)||1, item.qty - 1))}>−</button>
-                      <span className="sc-quote-qty">{item.qty} {item.unit || ''}</span>
-                      <button className="sc-mini-qty-btn" onClick={() => updateItemQty(item, item.qty + 1)}>+</button>
+          <div className="qp-inner">
+            <div className="qp-head">
+              <span className="qp-title">Quote ({quote.length})</span>
+              <button className="qp-clear" onClick={() => setQuote([])}>Clear</button>
+            </div>
+            {quote.length === 0 ? (
+              <p className="qp-empty">No items yet. Add products using the button below.</p>
+            ) : (
+              <ul className="qp-list">
+                {quote.map(item => (
+                  <li key={item.id} className="qp-item">
+                    <div className="qp-item-info">
+                      <strong>{item.name}</strong>
+                      {item.sku && <span className="qp-sku"> ({item.sku})</span>}
+                      <div className="qp-item-qty">
+                        <button className="qp-qty-btn" onClick={() => updateItemQty(item, Math.max(Number(item.min_qty)||1, item.qty - 1))}>−</button>
+                        <span>{item.qty} {item.unit || ''}</span>
+                        <button className="qp-qty-btn" onClick={() => updateItemQty(item, item.qty + 1)}>+</button>
+                      </div>
                     </div>
-                  </div>
-                  <button className="sc-quote-remove" onClick={() => removeFromQuote(item.id)}>✕</button>
-                </li>
-              ))}
-            </ul>
-          )}
-          <div className="sc-quote-mobile-wrap">
-            <label className="sc-phone-label">Mobile Number</label>
-            <div className="sc-phone-cc">IN India (+91)</div>
-            <input className="sc-phone-input" type="tel" placeholder="Mobile number"
-              value={mobile} onChange={e => setMobile(e.target.value)} />
+                    <button className="qp-remove" onClick={() => removeFromQuote(item.id)}>✕</button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="qp-phone">
+              <label className="qp-phone-label">Your Mobile Number</label>
+              <div className="qp-phone-cc">IN +91</div>
+              <input className="qp-phone-input" type="tel" placeholder="Enter mobile number"
+                value={mobile} onChange={e => setMobile(e.target.value)} />
+            </div>
+            <button className="qp-proceed" onClick={proceedWhatsApp}>Proceed on WhatsApp</button>
+            <p className="qp-hint">We'll send your quote details on WhatsApp.</p>
           </div>
-          <button className="sc-proceed-btn" onClick={proceedWhatsApp}>Proceed</button>
-          <p className="sc-proceed-hint">Opens WhatsApp with your quote details.</p>
         </aside>
       </div>
 
