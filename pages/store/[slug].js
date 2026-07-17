@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
@@ -15,20 +16,21 @@ function Lightbox({ images, startIdx, onClose }) {
     document.body.style.overflow = 'hidden'
     return () => { document.removeEventListener('keydown', handler); document.body.style.overflow = '' }
   }, [images.length, onClose])
-  return (
+  return createPortal(
     <div className="lb-backdrop" onClick={onClose}>
       <button className="lb-close" onClick={onClose}>✕</button>
-      {images.length > 1 && <button className="lb-arrow lb-arrow-l" onClick={e => { e.stopPropagation(); setIdx(i => (i - 1 + images.length) % images.length) }}>&#8249;</button>}
+      <button className="lb-arrow lb-arrow-l" onClick={e => { e.stopPropagation(); setIdx(i => (i - 1 + images.length) % images.length) }}>&#8249;</button>
       <div className="lb-img-wrap" onClick={e => e.stopPropagation()}>
         <img src={images[idx]} alt="" className="lb-img" />
       </div>
-      {images.length > 1 && <button className="lb-arrow lb-arrow-r" onClick={e => { e.stopPropagation(); setIdx(i => (i + 1) % images.length) }}>&#8250;</button>}
+      <button className="lb-arrow lb-arrow-r" onClick={e => { e.stopPropagation(); setIdx(i => (i + 1) % images.length) }}>&#8250;</button>
       {images.length > 1 && (
         <div className="lb-dots">
           {images.map((_, i) => <span key={i} className={`lb-dot${i === idx ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setIdx(i) }} />)}
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   )
 }
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
@@ -14,12 +15,17 @@ export function saveQuote(q) {
 function Lightbox({ images, startIdx, onClose }) {
   const [idx, setIdx] = useState(startIdx)
   useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') onClose(); if (e.key === 'ArrowRight') setIdx(i => (i + 1) % images.length); if (e.key === 'ArrowLeft') setIdx(i => (i - 1 + images.length) % images.length) }
+    const handler = (e) => {
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowRight') setIdx(i => (i + 1) % images.length)
+      if (e.key === 'ArrowLeft') setIdx(i => (i - 1 + images.length) % images.length)
+    }
     document.addEventListener('keydown', handler)
     document.body.style.overflow = 'hidden'
     return () => { document.removeEventListener('keydown', handler); document.body.style.overflow = '' }
   }, [images.length, onClose])
-  return (
+
+  return createPortal(
     <div className="lb-backdrop" onClick={onClose}>
       <button className="lb-close" onClick={onClose}>✕</button>
       <button className="lb-arrow lb-arrow-l" onClick={e => { e.stopPropagation(); setIdx(i => (i - 1 + images.length) % images.length) }}>&#8249;</button>
@@ -32,7 +38,8 @@ function Lightbox({ images, startIdx, onClose }) {
           {images.map((_, i) => <span key={i} className={`lb-dot${i === idx ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setIdx(i) }} />)}
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   )
 }
 
