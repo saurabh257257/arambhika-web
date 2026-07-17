@@ -4,6 +4,20 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
 
+function ImageLinkRow({ label, url }) {
+  const [copied, setCopied] = useState(false)
+  function copy() {
+    navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
+  }
+  return (
+    <div className="pd-link-val" style={{ marginBottom: '0.4rem' }}>
+      <span style={{ fontSize: '0.75rem', color: 'var(--muted)', minWidth: 56, flexShrink: 0 }}>{label}</span>
+      <a href={url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: 'var(--accent)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{url}</a>
+      <button className="pd-copy-btn" onClick={copy}>{copied ? '✓' : 'Copy'}</button>
+    </div>
+  )
+}
+
 function Lightbox({ images, startIdx, onClose }) {
   const [idx, setIdx] = useState(startIdx)
   useEffect(() => {
@@ -219,15 +233,25 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
                 </a>
               </div>
 
-              {/* Shareable link — product URL only */}
+              {/* Shareable links */}
               <div className="pd-links-box">
                 <p className="pd-links-title">Share this product</p>
-                <div className="pd-link-val">
+                <div className="pd-link-val" style={{ marginBottom: images.length > 0 ? '0.75rem' : 0 }}>
                   <span>{pageUrl}</span>
                   <button className="pd-copy-btn" onClick={copyUrl}>
                     {copied ? '✓ Copied' : 'Copy'}
                   </button>
                 </div>
+                {images.length > 0 && (
+                  <>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.5rem' }}>
+                      Product Images
+                    </p>
+                    {images.map((img, i) => (
+                      <ImageLinkRow key={i} label={`Image ${i + 1}`} url={img.startsWith('http') ? img : `${siteUrl}${img}`} />
+                    ))}
+                  </>
+                )}
               </div>
             </div>
           </div>

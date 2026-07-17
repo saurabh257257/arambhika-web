@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
@@ -327,6 +328,9 @@ export default function Store({ products, categories, activeCategory, settings }
   return (
     <Layout title="Product Store" settings={settings}
       description="Browse our full catalog of nickel strips, copper busbars, and battery connectors.">
+
+      {/* noindex search/filter result pages — keep only clean product pages in Google */}
+      {search && <Head><meta name="robots" content="noindex, follow" /></Head>}
 
       {/* Sticky search */}
       <div className="sc-searchbar-sticky">
