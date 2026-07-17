@@ -857,45 +857,52 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Image Lightbox ── */
 .lb-backdrop {
-  position: fixed; inset: 0; z-index: 1000;
-  background: rgba(0,0,0,0.88);
-  display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.92);
+  display: grid;
+  grid-template-rows: 1fr auto;
+  grid-template-columns: 56px 1fr 56px;
+  align-items: center; justify-items: center;
 }
 .lb-img-wrap {
-  max-width: 90vw; max-height: 90vh;
+  grid-column: 2; grid-row: 1;
+  width: 100%; max-width: 80vw; max-height: 82vh;
   display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
 }
 .lb-img {
-  max-width: 90vw; max-height: 90vh;
-  object-fit: contain; border-radius: 6px;
-  box-shadow: 0 8px 48px rgba(0,0,0,0.6);
-  background: #fff; padding: 0.5rem;
+  max-width: 100%; max-height: 80vh;
+  object-fit: contain; border-radius: 8px;
+  background: #fff; padding: 0.75rem;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.7);
 }
 .lb-close {
-  position: fixed; top: 1.25rem; right: 1.5rem;
-  background: rgba(255,255,255,0.15); border: none; color: #fff;
-  width: 40px; height: 40px; border-radius: 50%; font-size: 1.1rem;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s; z-index: 1001;
+  position: absolute; top: 1rem; right: 1rem;
+  background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.25);
+  color: #fff; width: 40px; height: 40px; border-radius: 50%;
+  font-size: 1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
 }
-.lb-close:hover { background: rgba(255,255,255,0.3); }
+.lb-close:hover { background: rgba(255,255,255,0.35); }
 .lb-arrow {
-  position: fixed; top: 50%; transform: translateY(-50%);
-  background: rgba(255,255,255,0.12); border: none; color: #fff;
-  width: 48px; height: 48px; border-radius: 50%; font-size: 2rem;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s; z-index: 1001; line-height: 1;
+  grid-row: 1; width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.2);
+  color: #fff; font-size: 1.8rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; line-height: 1; flex-shrink: 0;
 }
-.lb-arrow:hover { background: rgba(255,255,255,0.28); }
-.lb-arrow-l { left: 1rem; }
-.lb-arrow-r { right: 1rem; }
+.lb-arrow:hover { background: rgba(255,255,255,0.3); }
+.lb-arrow-l { grid-column: 1; }
+.lb-arrow-r { grid-column: 3; }
 .lb-dots {
-  position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 8px; z-index: 1001;
+  grid-column: 1 / -1; grid-row: 2;
+  display: flex; gap: 8px; padding: 0.75rem 0 1.25rem;
 }
 .lb-dot {
   width: 9px; height: 9px; border-radius: 50%;
   background: rgba(255,255,255,0.35); cursor: pointer; transition: background 0.15s;
+  border: none;
 }
 .lb-dot.active { background: #fff; }
 
