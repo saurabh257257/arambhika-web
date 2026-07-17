@@ -974,6 +974,9 @@ a { color: inherit; text-decoration: none; }
   .pd-name { font-size: 1.15rem; }
   .pd-cta-row { flex-direction: column; align-items: stretch; }
   .sc-add-btn, .pd-wa-btn { width: 100%; text-align: center; padding: 0.75rem; height: auto; }
+  .sc-qty { width: 100%; height: 48px; }
+  .sc-qty button { flex: 1; padding: 0; font-size: 1.4rem; }
+  .sc-qty span { flex: 1; min-width: unset; }
   .pd-topbar .container { padding: 0 0.75rem; }
   .pd-breadcrumb { display: none; }
 
@@ -1106,6 +1109,19 @@ a { color: inherit; text-decoration: none; }
 }
 .pg-wa-legend > span:first-child { font-weight: 700; color: var(--navy); margin-right: 0.4rem; }
 .pg-wa-legend > span:not(:first-child) { background: #e0f2fe; color: #0369a1; border-radius: 3px; padding: 0.05rem 0.35rem; }
+
+/* ── Mobile quote drawer inputs ── */
+.sc-phone-input {
+  width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 0.95rem; outline: none; box-sizing: border-box;
+}
+.sc-phone-input:focus { border-color: var(--accent); }
+.sc-proceed-btn {
+  width: 100%; padding: 0.75rem; background: #25d366; color: #fff;
+  border: none; border-radius: 8px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+}
+.sc-proceed-btn:hover { background: #1ebe5d; }
 
 /* ── Quote panel mini qty buttons ── */
 .sc-mini-qty-btn {
