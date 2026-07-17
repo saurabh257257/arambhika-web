@@ -818,6 +818,26 @@ a { color: inherit; text-decoration: none; }
 .pd-specs { margin: 1rem 0; }
 .pd-specs-title { font-size: 0.88rem; font-weight: 700; color: #374151; margin-bottom: 0.5rem; }
 
+/* Share box under image */
+.pd-share-box {
+  margin-top: 0.85rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--off); overflow: hidden;
+}
+.pd-share-row {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--border);
+  background: #fff;
+}
+.pd-share-label {
+  font-size: 0.7rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0;
+}
+.pd-share-url {
+  font-size: 0.72rem; color: var(--accent); flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+}
+
 /* Order row */
 .pd-order-row { display: flex; align-items: center; gap: 1rem; margin: 1.25rem 0; }
 .pd-wa-btn { background: var(--wa); color: #fff; padding: 0.65rem 1.5rem; border-radius: 8px; font-size: 0.95rem; font-weight: 700; display: inline-block; }

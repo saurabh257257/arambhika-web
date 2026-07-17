@@ -10,9 +10,9 @@ function ImageLinkRow({ label, url }) {
     navigator.clipboard.writeText(url).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
   }
   return (
-    <div className="pd-link-val" style={{ marginBottom: '0.4rem' }}>
-      <span style={{ fontSize: '0.75rem', color: 'var(--muted)', minWidth: 56, flexShrink: 0 }}>{label}</span>
-      <a href={url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: 'var(--accent)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{url}</a>
+    <div className="pd-share-row">
+      <span className="pd-share-label">{label}</span>
+      <a href={url} target="_blank" rel="noopener noreferrer" className="pd-share-url">{url}</a>
       <button className="pd-copy-btn" onClick={copy}>{copied ? '✓' : 'Copy'}</button>
     </div>
   )
@@ -184,6 +184,19 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
                   ))}
                 </div>
               )}
+
+              {/* Share + image links under the image */}
+              <div className="pd-share-box">
+                <div className="pd-share-row">
+                  <span className="pd-share-label">Product Link</span>
+                  <span className="pd-share-url">{pageUrl}</span>
+                  <button className="pd-copy-btn" onClick={copyUrl}>{copied ? '✓' : 'Copy'}</button>
+                </div>
+                {images.map((img, i) => {
+                  const absUrl = img.startsWith('http') ? img : `${siteUrl}${img}`
+                  return <ImageLinkRow key={i} label={`Image ${i + 1}`} url={absUrl} />
+                })}
+              </div>
             </div>
 
             {/* Info */}
@@ -233,26 +246,6 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
                 </a>
               </div>
 
-              {/* Shareable links */}
-              <div className="pd-links-box">
-                <p className="pd-links-title">Share this product</p>
-                <div className="pd-link-val" style={{ marginBottom: images.length > 0 ? '0.75rem' : 0 }}>
-                  <span>{pageUrl}</span>
-                  <button className="pd-copy-btn" onClick={copyUrl}>
-                    {copied ? '✓ Copied' : 'Copy'}
-                  </button>
-                </div>
-                {images.length > 0 && (
-                  <>
-                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.5rem' }}>
-                      Product Images
-                    </p>
-                    {images.map((img, i) => (
-                      <ImageLinkRow key={i} label={`Image ${i + 1}`} url={img.startsWith('http') ? img : `${siteUrl}${img}`} />
-                    ))}
-                  </>
-                )}
-              </div>
             </div>
           </div>
         </div>
