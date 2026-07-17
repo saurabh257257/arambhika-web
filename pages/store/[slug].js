@@ -153,12 +153,10 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
             {/* Images */}
             <div className="pd-img-col">
               {lightbox && <Lightbox images={images} startIdx={imgIdx} onClose={() => setLightbox(false)} />}
-              <div className="pd-carousel">
+              <div className="pd-carousel" onClick={() => images.length > 0 && setLightbox(true)} style={{ cursor: images.length > 0 ? 'zoom-in' : 'default' }}>
                 {images.length > 0 ? (
                   <>
-                    <div className="pd-img-frame" onClick={() => setLightbox(true)} style={{ cursor: 'zoom-in' }}>
-                      <img src={images[imgIdx]} alt={`${product.name} - image ${imgIdx + 1}`} className="pd-img-main" />
-                    </div>
+                    <img src={images[imgIdx]} alt={`${product.name} - image ${imgIdx + 1}`} className="pd-img-main" />
                     {images.length > 1 && (
                       <>
                         <button className="sc-arrow sc-arrow-l" onClick={() => setImgIdx(i => (i - 1 + images.length) % images.length)}>&#8249;</button>
