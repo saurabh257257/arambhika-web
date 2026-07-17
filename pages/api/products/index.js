@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
     const {
       name, sku, category, price, unit, min_qty, description,
-      specs, images, sort_order, availability, condition, material, dimensions,
+      specs, images, sort_order, availability, condition, material, dimensions, inventory,
     } = req.body
     if (!name || !category) return res.status(400).json({ error: 'Name and category are required' })
 
@@ -47,6 +47,7 @@ export default async function handler(req, res) {
         condition: condition || 'new',
         material: material || null,
         dimensions: dimensions || null,
+        inventory: inventory != null && inventory !== '' ? Number(inventory) : null,
       })
       return res.status(201).json({ ok: true, id: result.lastInsertRowid, slug })
     } catch (err) {

@@ -30,6 +30,7 @@ function initRow(p) {
     material:     p.material     || '',
     dimensions:   p.dimensions   || '',
     featured:     p.featured     ?? 0,
+    inventory:    p.inventory    ?? '',
     _dirty: false, _saving: false, _expanded: false, _imgOpen: false, _isNew: false,
   }
 }
@@ -141,8 +142,8 @@ function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isF
 
         {/* title */}
         <td style={{ minWidth: 160 }}>
-          <input className="pg-input" value={row.name || ''} placeholder="Product name *"
-            onChange={e => f('name', e.target.value)} />
+          <textarea className="pg-input pg-textarea" value={row.name || ''} placeholder="Product name *"
+            rows={2} onChange={e => f('name', e.target.value)} />
         </td>
 
         {/* category — always visible so new products can be assigned */}
@@ -154,11 +155,10 @@ function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isF
           </select>
         </td>
 
-        {/* description (truncated) */}
-        <td style={{ minWidth: 140 }}>
-          <input className="pg-input" value={row.description || ''} placeholder="Description…"
-            onChange={e => f('description', e.target.value)}
-            title={row.description || ''}
+        {/* description */}
+        <td style={{ minWidth: 160 }}>
+          <textarea className="pg-input pg-textarea" value={row.description || ''} placeholder="Description…"
+            rows={2} onChange={e => f('description', e.target.value)}
             style={{ fontSize: '0.78rem' }} />
         </td>
 
@@ -168,6 +168,16 @@ function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isF
             <option value="in stock">in stock</option>
             <option value="out of stock">out of stock</option>
           </select>
+        </td>
+
+        {/* inventory */}
+        <td style={{ width: 80 }}>
+          <input className="pg-input" type="number" min="0" value={row.inventory ?? ''}
+            placeholder="—" onChange={e => f('inventory', e.target.value)}
+            style={{ width: '100%' }} />
+          {row.inventory === 0 || row.inventory === '0' ? (
+            <span style={{ fontSize: '0.65rem', color: '#dc2626', fontWeight: 700, display: 'block', textAlign: 'center' }}>OUT OF STOCK</span>
+          ) : null}
         </td>
 
         {/* condition */}
@@ -231,7 +241,7 @@ function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isF
       {/* Image manager */}
       {row._imgOpen && (
         <tr>
-          <td colSpan={12} className="pg-expanded-cell" style={{ background: '#fffbeb', borderBottom: '2px solid #fcd34d' }}>
+          <td colSpan={13} className="pg-expanded-cell" style={{ background: '#fffbeb', borderBottom: '2px solid #fcd34d' }}>
             <p className="pg-field-label" style={{ marginBottom: '0.5rem' }}>
               Images &nbsp;
               <span style={{ fontWeight: 400, color: '#6b7280', textTransform: 'none' }}>
@@ -247,7 +257,7 @@ function ProductRow({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isF
       {/* Expanded details */}
       {row._expanded && (
         <tr>
-          <td colSpan={12} className="pg-expanded-cell">
+          <td colSpan={13} className="pg-expanded-cell">
             <div className="pg-exp-grid">
               <div>
                 <p className="pg-field-label">Min Qty</p>
@@ -312,6 +322,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
       dimensions: row.dimensions || null,
       brand: row.brand || 'Arambhika Enablers',
       featured: row.featured ? 1 : 0,
+      inventory: row.inventory !== '' && row.inventory != null ? Number(row.inventory) : null,
     }
     try {
       if (row._isNew) {
@@ -345,7 +356,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
         id: tempId, name: '', sku: '', category: '', price: '',
         unit: 'KG', min_qty: '', description: '', specs: [], images: [],
         sort_order: 0, availability: 'in stock', condition: 'new',
-        brand: 'Arambhika Enablers', material: '', dimensions: '', slug: '',
+        brand: 'Arambhika Enablers', material: '', dimensions: '', slug: '', inventory: '',
       }),
       _isNew: true, _dirty: true, _expanded: true, _imgOpen: true,
     }, ...prev])
@@ -477,6 +488,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
                 <th>Category</th>
                 <th>Description</th>
                 <th>Availability</th>
+                <th>Inventory</th>
                 <th>Condition</th>
                 <th>Price / Unit</th>
                 <th>Brand</th>
@@ -528,7 +540,7 @@ function CatGroup({ cat, catRows, isFirst, isLast, onMoveUp, onMoveDown,
   return (
     <>
       <tr className="pg-cat-header">
-        <td colSpan={12}>
+        <td colSpan={13}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <button className="pg-move-btn pg-cat-move" disabled={isFirst}  onClick={onMoveUp}>▲</button>
@@ -557,13 +569,14 @@ export async function getServerSideProps({ req, res }) {
   const session = await getSession(req, res)
   if (!session?.admin) return { redirect: { destination: '/admin', permanent: false } }
   try {
-    const { getAllProductsSorted, getCategoriesOrdered } = require('../../../lib/db')
-    const products = getAllProductsSorted()
-    const catData  = getCategoriesOrdered()
+    const { getAllProductsSorted, getCategoriesOrdered, getCategoryNames } = require('../../../lib/db')
+    const products  = getAllProductsSorted()
+    const catData   = getCategoriesOrdered()
+    const catNames  = getCategoryNames()
 
-    // Build category order from DB, then fill in any missing categories
+    // Build category order: DB-ordered first, then product categories, then custom names
     const dbOrder = catData.map(c => c.category)
-    const allCats = [...new Set([...dbOrder, ...products.map(p => p.category).filter(Boolean)])]
+    const allCats = [...new Set([...dbOrder, ...products.map(p => p.category).filter(Boolean), ...catNames])]
 
     const siteUrl = process.env.SITE_URL || 'http://168.144.189.151'
     return { props: {
