@@ -154,11 +154,14 @@ export default function CategoryPage({ products, category, settings, siteUrl, ca
 
 export async function getServerSideProps({ params }) {
   try {
-    const { getAllProducts, getCategoryNames, getSettings } = require('../../../lib/db')
+    const { getAllProducts, getCategoryNames, getCategories, getSettings } = require('../../../lib/db')
     const { fromCategorySlug } = await import('../../../lib/categorySlug')
 
-    const categoryNames = getCategoryNames()
-    const category = fromCategorySlug(params.slug, categoryNames)
+    // Look up category in both the categories table AND distinct product categories
+    const registeredNames = getCategoryNames()
+    const productCatRows  = getCategories()
+    const allCatNames = [...new Set([...registeredNames, ...productCatRows.map(r => r.category)])]
+    const category = fromCategorySlug(params.slug, allCatNames)
     if (!category) return { notFound: true }
 
     const products = getAllProducts(category)
