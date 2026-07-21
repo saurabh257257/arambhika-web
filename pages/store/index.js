@@ -257,7 +257,7 @@ function CategorySidebar({ categories, activeCategory }) {
         </li>
         {categories.map(c => (
           <li key={c.category}>
-            <Link href={`/store/category/${toCategorySlug(c.category)}`}
+            <Link href={`/store?category=${encodeURIComponent(c.category)}`}
               className={`cat-sidebar-item${activeCategory === c.category ? ' active' : ''}`}>
               {c.image
                 ? <img src={c.image} alt={c.category} className="cat-sidebar-img" />
@@ -281,7 +281,7 @@ function MobileCatStrip({ categories, activeCategory }) {
         <span className="mob-catpill-label">All</span>
       </Link>
       {categories.map(c => (
-        <Link key={c.category} href={`/store/category/${toCategorySlug(c.category)}`}
+        <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
           className={`mob-catpill${activeCategory === c.category ? ' active' : ''}`}>
           {c.image
             ? <img src={c.image} alt={c.category} className="mob-catpill-img" />
