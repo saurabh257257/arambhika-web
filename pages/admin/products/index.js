@@ -55,14 +55,26 @@ function ImageManager({ images, onChange, sku, productName }) {
     e.target.value = ''
   }
 
+  function move(i, dir) {
+    const j = i + dir
+    if (j < 0 || j >= images.length) return
+    const next = [...images]
+    ;[next[i], next[j]] = [next[j], next[i]]
+    onChange(next)
+  }
+
   return (
     <div className="ap-img-manager">
       <div className="ap-img-grid">
         {images.map((url, i) => (
-          <div key={i} className="ap-img-item">
+          <div key={url + i} className="ap-img-item">
             <img src={url} alt={`img ${i + 1}`} />
             <button className="ap-img-remove" onClick={() => onChange(images.filter((_, n) => n !== i))}>✕</button>
-            <span className="ap-img-num">{i + 1}</span>
+            <span className="ap-img-num">{i + 1}{i === 0 && <span style={{fontSize:'0.6rem',marginLeft:2}}>MAIN</span>}</span>
+            <div className="ap-img-reorder">
+              <button className="ap-img-mv" onClick={() => move(i, -1)} disabled={i === 0} title="Move left">◀</button>
+              <button className="ap-img-mv" onClick={() => move(i, +1)} disabled={i === images.length - 1} title="Move right">▶</button>
+            </div>
           </div>
         ))}
         <input type="file" ref={fileRef} accept="image/*" multiple style={{ display: 'none' }} onChange={upload} />
