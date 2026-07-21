@@ -227,8 +227,8 @@ function ProductCard({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, is
               <div className="ap-field-group">
                 <label className="ap-label">Availability</label>
                 <select className="ap-field ap-select" value={row.availability || 'in stock'} onChange={e => f('availability', e.target.value)}>
-                  <option value="in stock">In Stock</option>
-                  <option value="out of stock">Out of Stock</option>
+                  <option value="in stock">Available</option>
+                  <option value="Available on Request">On Request</option>
                 </select>
               </div>
               <div className="ap-field-group">
