@@ -407,19 +407,25 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
     setCatOrder(next); saveCatOrder(next)
   }
 
-  const moveProductUp = async (cat, idx) => {
-    const catRows = rows.filter(r => r.category === cat && !r._isNew)
-    if (idx <= 0) return
-    const a = catRows[idx - 1], b = catRows[idx]
-    setRows(prev => prev.map(r => r.id === a.id ? { ...r, sort_order: b.sort_order } : r.id === b.id ? { ...r, sort_order: a.sort_order } : r))
+  const moveProductInCat = async (cat, idx, dir) => {
+    const catRows = rows
+      .filter(r => r.category === cat && !r._isNew)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    const j = idx + dir
+    if (j < 0 || j >= catRows.length) return
+    // Swap positions then assign clean sequential sort_order to whole category
+    const reordered = [...catRows]
+    ;[reordered[idx], reordered[j]] = [reordered[j], reordered[idx]]
+    const updates = reordered.map((r, i) => ({ id: r.id, sort_order: i }))
+    setRows(prev => prev.map(r => {
+      const u = updates.find(x => x.id === r.id)
+      return u ? { ...r, sort_order: u.sort_order } : r
+    }))
     await fetch('/api/admin/reorder', { method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ updates: [{ id: a.id, sort_order: b.sort_order }, { id: b.id, sort_order: a.sort_order }] }) })
+      body: JSON.stringify({ updates }) })
   }
-  const moveProductDown = async (cat, idx) => {
-    const catRows = rows.filter(r => r.category === cat && !r._isNew)
-    if (idx >= catRows.length - 1) return
-    await moveProductUp(cat, idx + 1)
-  }
+  const moveProductUp   = (cat, idx) => moveProductInCat(cat, idx, -1)
+  const moveProductDown = (cat, idx) => moveProductInCat(cat, idx, +1)
 
   const q = search.toLowerCase()
   const filteredRows = rows.filter(r =>
