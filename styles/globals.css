@@ -1194,6 +1194,40 @@ a { color: inherit; text-decoration: none; }
 }
 .inv-save-btn:disabled { background: var(--off); color: var(--muted); border: 1px solid var(--border); cursor: default; }
 .inv-saved { background: #16a34a; }
+
+/* Unified badge colours (used in both edit + view) */
+.inv-badge-in      { background: #dcfce7; color: #15803d; }
+.inv-badge-request { background: #fef9c3; color: #92400e; }
+.inv-badge-unknown { background: var(--off); color: var(--muted); border: 1px solid var(--border); }
+
+/* Page header */
+.inv-page-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+
+/* Mode toggle */
+.inv-mode-toggle { display: flex; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+.inv-mode-btn { background: #fff; border: none; padding: 0.45rem 1.1rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--muted); }
+.inv-mode-btn.active { background: var(--accent); color: #fff; }
+
+/* Filter bar (View mode) */
+.inv-filter-bar { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.inv-filter-label { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+.inv-filter-pill { padding: 0.3rem 0.85rem; border-radius: 20px; border: 1.5px solid var(--border); background: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: #374151; }
+.inv-filter-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* View mode category */
+.inv-view-cat { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.inv-view-cat-hdr { background: var(--navy); color: #fff; padding: 0.45rem 0.9rem; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+.inv-view-cat-hdr span { font-size: 0.72rem; opacity: 0.65; font-weight: 400; }
+.inv-view-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.inv-view-item { padding: 0.5rem 0.85rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); background: #fff; }
+.inv-view-item:nth-child(3n) { border-right: none; }
+.inv-view-request { background: #fffdf0; }
+.inv-view-name { font-size: 0.82rem; font-weight: 600; color: var(--navy); line-height: 1.3; }
+.inv-view-sku { font-size: 0.7rem; color: var(--muted); margin-top: 1px; }
+.inv-view-badge { font-size: 0.7rem; font-weight: 700; margin-top: 0.3rem; display: inline-block; padding: 0.1rem 0.45rem; border-radius: 20px; }
+.inv-badge-in      { background: #dcfce7; color: #15803d; }
+.inv-badge-request { background: #fef9c3; color: #92400e; }
+.inv-badge-unknown { background: var(--off); color: var(--muted); }
 .inv-shortcut-btn {
   background: #f0fdf4; border: 1.5px solid #86efac; color: #15803d;
   border-radius: 8px; padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 700;
