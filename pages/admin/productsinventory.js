@@ -125,6 +125,33 @@ function EditMode({ rows, setRows }) {
     for (const row of rows.filter(r => r._dirty)) await saveRow(row.id)
   }
 
+  // Move a row up/down within its category and persist sort_order
+  const moveRow = async (catRows, idx, dir) => {
+    const j = idx + dir
+    if (j < 0 || j >= catRows.length) return
+    // Swap the two rows in the global rows array
+    const idA = catRows[idx].id
+    const idB = catRows[j].id
+    setRows(prev => {
+      const next = [...prev]
+      const iA = next.findIndex(r => r.id === idA)
+      const iB = next.findIndex(r => r.id === idB)
+      ;[next[iA], next[iB]] = [next[iB], next[iA]]
+      return next
+    })
+    // Persist new sort_order based on swapped positions
+    const updates = catRows.map((r, i) => {
+      if (r.id === idA) return { id: idA, sort_order: j }
+      if (r.id === idB) return { id: idB, sort_order: idx }
+      return { id: r.id, sort_order: i }
+    })
+    await fetch('/api/admin/reorder', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ updates }),
+    })
+  }
+
   const dirtyCount = rows.filter(r => r._dirty).length
 
   const grouped = {}
@@ -147,7 +174,7 @@ function EditMode({ rows, setRows }) {
         <div key={cat} className="inv-cat-block">
           <div className="inv-cat-header">{cat} <span>{catRows.length}</span></div>
           <div className="inv-table">
-            {catRows.map(row => {
+            {catRows.map((row, idx) => {
               const inv = row.inventory === '' || row.inventory == null ? '' : Number(row.inventory)
               const st  = availStatus(row)
               const isDirty   = !!row._dirty
@@ -155,12 +182,17 @@ function EditMode({ rows, setRows }) {
               const justSaved = !!saved[row.id]
               return (
                 <div key={row.id} className={`inv-row${isDirty ? ' inv-row-dirty' : ''}`}>
+                  {/* Reorder arrows */}
+                  <div className="inv-reorder">
+                    <button className="inv-reorder-btn" onClick={() => moveRow(catRows, idx, -1)} disabled={idx === 0}>▲</button>
+                    <button className="inv-reorder-btn" onClick={() => moveRow(catRows, idx, +1)} disabled={idx === catRows.length - 1}>▼</button>
+                  </div>
                   <div className="inv-info">
                     <div className="inv-name">{row.name}</div>
                     {row.sku && <div className="inv-sku">#{row.sku}</div>}
                   </div>
                   <div className={`inv-badge inv-badge-${st}`}>
-                    {st === 'request' ? '🔴 Available on Request' : st === 'unknown' ? '— not set' : '🟢 Available'}
+                    {st === 'request' ? '🔴 On Request' : st === 'unknown' ? '— not set' : '🟢 Available'}
                   </div>
                   <div className="inv-qty-wrap">
                     <button className="inv-qty-btn" onClick={() => updateQty(row.id, Math.max(0, (Number(inv) || 0) - 1))}>−</button>
