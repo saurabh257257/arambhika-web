@@ -407,14 +407,10 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
     setCatOrder(next); saveCatOrder(next)
   }
 
-  const moveProductInCat = async (cat, idx, dir) => {
-    const catRows = rows
-      .filter(r => r.category === cat && !r._isNew)
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+  const moveProductInCat = async (visualCatRows, idx, dir) => {
     const j = idx + dir
-    if (j < 0 || j >= catRows.length) return
-    // Swap positions then assign clean sequential sort_order to whole category
-    const reordered = [...catRows]
+    if (j < 0 || j >= visualCatRows.length) return
+    const reordered = [...visualCatRows]
     ;[reordered[idx], reordered[j]] = [reordered[j], reordered[idx]]
     const updates = reordered.map((r, i) => ({ id: r.id, sort_order: i }))
     setRows(prev => prev.map(r => {
@@ -424,8 +420,6 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
     await fetch('/api/admin/reorder', { method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ updates }) })
   }
-  const moveProductUp   = (cat, idx) => moveProductInCat(cat, idx, -1)
-  const moveProductDown = (cat, idx) => moveProductInCat(cat, idx, +1)
 
   const q = search.toLowerCase()
   const filteredRows = rows.filter(r =>
@@ -516,8 +510,8 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
               onMoveUp={() => moveCategoryUp(cat)}
               onMoveDown={() => moveCategoryDown(cat)}
               onUpdateRow={updateRow} onSaveRow={saveRow} onDeleteRow={deleteRow}
-              onMoveProductUp={(idx) => moveProductUp(cat, idx)}
-              onMoveProductDown={(idx) => moveProductDown(cat, idx)}
+              onMoveProductUp={(idx) => moveProductInCat(catRows, idx, -1)}
+              onMoveProductDown={(idx) => moveProductInCat(catRows, idx, +1)}
               siteUrl={siteUrl} allCategories={catOrder} />
           )
         })}
