@@ -592,8 +592,9 @@ a { color: inherit; text-decoration: none; }
   flex-shrink: 0; font-size: 0.72rem; font-weight: 700;
   padding: 0.25rem 0.7rem; border-radius: 100px; white-space: nowrap;
 }
-.pcard-badge-in { background: #dcfce7; color: #16a34a; }
-.pcard-badge-out { background: #fee2e2; color: #dc2626; }
+.pcard-badge-in      { background: #dcfce7; color: #16a34a; }
+.pcard-badge-request { background: #fef9c3; color: #92400e; }
+.pcard-badge-out     { background: #fee2e2; color: #dc2626; }
 
 .pcard-meta {
   display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;
@@ -784,6 +785,8 @@ a { color: inherit; text-decoration: none; }
 
 /* Availability badge */
 .sc-avail { display: inline-block; font-size: 0.78rem; font-weight: 700; padding: 0.3rem 0.85rem; border-radius: 100px; background: #dcfce7; color: #16a34a; white-space: nowrap; flex-shrink: 0; }
+.sc-avail-req { background: #fef9c3; color: #92400e; }
+.sc-avail-out { background: #fee2e2; color: #dc2626; }
 
 /* Qty stepper on detail page */
 .sc-qty {

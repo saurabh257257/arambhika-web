@@ -59,7 +59,8 @@ function ProductCard({ p, quote, onQtyChange }) {
     onQtyChange(p, next)
   }
 
-  const available = p.availability !== 'out of stock'
+  const availStatus = p.availability === 'out of stock' ? 'out'
+    : p.availability === 'Available on Request' ? 'request' : 'in'
 
   return (
     <article className="pcard">
@@ -95,8 +96,8 @@ function ProductCard({ p, quote, onQtyChange }) {
               <h2 className="pcard-name">{p.name}{p.sku && <span className="pcard-sku"> · {p.sku}</span>}</h2>
             </Link>
           </div>
-          <span className={`pcard-badge ${available ? 'pcard-badge-in' : 'pcard-badge-out'}`}>
-            {available ? 'Available' : 'Out of Stock'}
+          <span className={`pcard-badge pcard-badge-${availStatus}`}>
+            {availStatus === 'in' ? 'Available' : availStatus === 'request' ? 'On Request' : 'Out of Stock'}
           </span>
         </div>
 

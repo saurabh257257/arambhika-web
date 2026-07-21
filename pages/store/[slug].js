@@ -208,7 +208,10 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
                   </h1>
                   {product.description && <p className="pd-desc">{product.description}</p>}
                 </div>
-                <span className="sc-avail">Available</span>
+                <span className={`sc-avail${product.availability === 'Available on Request' ? ' sc-avail-req' : product.availability === 'out of stock' ? ' sc-avail-out' : ''}`}>
+                  {product.availability === 'Available on Request' ? 'Available on Request'
+                    : product.availability === 'out of stock' ? 'Out of Stock' : 'Available'}
+                </span>
               </div>
 
               <div className="pd-price-row">
