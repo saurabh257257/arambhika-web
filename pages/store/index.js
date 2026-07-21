@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
 import { loadQuote, saveQuote } from '../../lib/quote'
-const { toCategorySlug } = require('../../lib/categorySlug')
+import { toCategorySlug } from '../../lib/categorySlug'
 
 /* ── Image Lightbox ── */
 function Lightbox({ images, startIdx, onClose }) {

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
-const { toCategorySlug } = require('../../lib/categorySlug')
+import { toCategorySlug } from '../../lib/categorySlug'
 
 function ImageLinkRow({ label, url }) {
   const [copied, setCopied] = useState(false)

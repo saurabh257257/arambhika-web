@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Layout from '../../../components/Layout'
 import { loadQuote, saveQuote } from '../../../lib/quote'
+import { toCategorySlug } from '../../../lib/categorySlug'
 
 export default function CategoryPage({ products, category, settings, siteUrl, categorySlug }) {
   const WA = settings.wa_number || '919315545821'
@@ -154,7 +155,7 @@ export default function CategoryPage({ products, category, settings, siteUrl, ca
 export async function getServerSideProps({ params }) {
   try {
     const { getAllProducts, getCategoryNames, getSettings } = require('../../../lib/db')
-    const { fromCategorySlug } = require('../../../lib/categorySlug')
+    const { fromCategorySlug } = await import('../../../lib/categorySlug')
 
     const categoryNames = getCategoryNames()
     const category = fromCategorySlug(params.slug, categoryNames)
