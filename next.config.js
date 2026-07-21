@@ -3,11 +3,6 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   images: { unoptimized: true },
-  async redirects() {
-    return [
-      { source: '/', destination: '/store', permanent: false },
-    ]
-  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       const existing = Array.isArray(config.externals) ? config.externals : []

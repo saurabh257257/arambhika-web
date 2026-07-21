@@ -80,12 +80,29 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
     ? `${product.description} | Price: ₹${product.price}/${product.unit} | Min Qty: ${product.min_qty} ${product.unit}`
     : `${product.name} — ₹${product.price}/${product.unit}. Buy from Arambhika Enablers.`
 
+  const schemaAvailability = product.availability === 'out of stock'
+    ? 'https://schema.org/OutOfStock'
+    : product.availability === 'Available on Request'
+    ? 'https://schema.org/LimitedAvailability'
+    : 'https://schema.org/InStock'
+
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'Product',
     name: product.name, description: product.description || '', sku: product.sku || '',
     image: images, url: pageUrl,
     brand: { '@type': 'Brand', name: 'Arambhika Enablers' },
-    offers: { '@type': 'Offer', priceCurrency: 'INR', price: product.price || '0', availability: 'https://schema.org/InStock' },
+    offers: { '@type': 'Offer', priceCurrency: 'INR', price: product.price || '0', availability: schemaAvailability },
+  }
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home',  item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Store', item: `${siteUrl}/store` },
+      { '@type': 'ListItem', position: 3, name: product.category, item: `${siteUrl}/store?category=${encodeURIComponent(product.category)}` },
+      { '@type': 'ListItem', position: 4, name: product.name, item: pageUrl },
+    ],
   }
 
   function copyUrl() {
@@ -131,6 +148,7 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
   return (
     <Layout title={product.name} description={metaDesc} ogImage={images[0] || null} ogUrl={pageUrl} settings={settings}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       {/* Breadcrumb / back */}
       <div className="pd-topbar">

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 
-export default function Layout({ children, title, description, ogImage, ogUrl, settings = {} }) {
+export default function Layout({ children, title, description, ogImage, ogUrl, canonical, settings = {} }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const brandName  = settings.brand_name    || 'Arambhika Enablers'
   const tagline    = settings.brand_tagline || 'Nickel & Copper Battery Connectors'
@@ -18,6 +18,8 @@ export default function Layout({ children, title, description, ogImage, ogUrl, s
   const defaultSiteTitle = settings.site_title || `${brandName} — Nickel Strip & Copper Busbar Manufacturer`
   const siteTitle = title ? `${title} | ${brandName}` : defaultSiteTitle
   const metaDesc  = description || metaDefault
+  const canonicalUrl = canonical || ogUrl || null
+  const ogImg = ogImage || '/og-default.svg'
 
   return (
     <>
@@ -26,13 +28,16 @@ export default function Layout({ children, title, description, ogImage, ogUrl, s
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{siteTitle}</title>
         <meta name="description" content={metaDesc} />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         <meta property="og:title" content={siteTitle} />
         <meta property="og:description" content={metaDesc} />
         <meta property="og:type" content="website" />
-        {ogImage && <meta property="og:image" content={ogImage} />}
+        <meta property="og:image" content={ogImg} />
         {ogUrl && <meta property="og:url" content={ogUrl} />}
         <meta name="twitter:card" content="summary_large_image" />
-        <link rel="icon" href="/favicon.ico" />
+        <meta name="twitter:image" content={ogImg} />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </Head>
 
       <header className="site-header">
@@ -49,6 +54,7 @@ export default function Layout({ children, title, description, ogImage, ogUrl, s
               <li><Link href="/store">Store</Link></li>
               <li><Link href="/blogs">Blogs</Link></li>
               <li><Link href="/about">About Us</Link></li>
+              <li><Link href="/contact">Contact</Link></li>
             </ul>
           </nav>
           <div className="nav-contact">
@@ -67,6 +73,7 @@ export default function Layout({ children, title, description, ogImage, ogUrl, s
             <Link href="/store">Store</Link>
             <Link href="/blogs">Blogs</Link>
             <Link href="/about">About Us</Link>
+            <Link href="/contact">Contact</Link>
             <a href={`https://wa.me/${WA}`} className="nav-mobile-wa" target="_blank" rel="noopener noreferrer">
               WhatsApp Order
             </a>
@@ -90,6 +97,7 @@ export default function Layout({ children, title, description, ogImage, ogUrl, s
               <li><Link href="/store">Product Store</Link></li>
               <li><Link href="/blogs">Blogs</Link></li>
               <li><Link href="/about">About Us</Link></li>
+              <li><Link href="/contact">Contact</Link></li>
             </ul>
           </div>
           <div className="footer-col">

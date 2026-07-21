@@ -11,7 +11,9 @@ export default function About({ settings }) {
 
   return (
     <Layout title="About Us" settings={settings}
-      description={`${settings.brand_name || 'Arambhika Enablers'} — manufacturer and distributor of nickel strips and copper busbars in Greater Noida, India.`}>
+      description={`${settings.brand_name || 'Arambhika Enablers'} — manufacturer and distributor of nickel strips and copper busbars in Greater Noida, India.`}
+      canonical="https://arambhikaenablers.in/about"
+      ogUrl="https://arambhikaenablers.in/about">
       <div className="container">
         <div className="breadcrumb">
           <Link href="/">Home</Link><span>/</span><span>About Us</span>

@@ -79,10 +79,42 @@ function CategoryCarousel({ categories }) {
 }
 
 export default function Home({ featured, categories, settings, heroImages }) {
-  const WA = settings.wa_number || '919315545821'
+  const WA      = settings.wa_number || '919315545821'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://arambhikaenablers.in'
+
+  const localBusinessLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: settings.brand_name || 'Arambhika Enablers',
+    description: settings.meta_description || 'Manufacturer and distributor of nickel strips, copper busbars, and battery connectors based in Greater Noida, India.',
+    url: siteUrl,
+    telephone: settings.phone1 || '+91-9315545821',
+    email: settings.email || 'info@arambhikaenablers.in',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Plot No. C-03, Sector 4',
+      addressLocality: 'Greater Noida',
+      addressRegion: 'Uttar Pradesh',
+      postalCode: '201318',
+      addressCountry: 'IN',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 28.4744,
+      longitude: 77.5040,
+    },
+    openingHoursSpecification: [
+      { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], opens: '09:00', closes: '18:00' },
+    ],
+    areaServed: 'India',
+    sameAs: [`https://wa.me/${settings.wa_number || '919315545821'}`],
+  }
 
   return (
-    <Layout settings={settings}>
+    <Layout settings={settings}
+      canonical={siteUrl}
+      ogUrl={siteUrl}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }} />
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">

@@ -5,13 +5,33 @@ import { getBlogBySlug } from '../../lib/db'
 export default function BlogPost({ blog, siteUrl }) {
   if (!blog) return null
 
+  const articleLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: blog.title,
+    description: blog.excerpt || '',
+    image: blog.cover_image ? [blog.cover_image] : [],
+    datePublished: blog.published_at,
+    dateModified: blog.published_at,
+    author: { '@type': 'Organization', name: 'Arambhika Enablers', url: siteUrl },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Arambhika Enablers',
+      url: siteUrl,
+      logo: { '@type': 'ImageObject', url: `${siteUrl}/favicon.svg` },
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteUrl}/blogs/${blog.slug}` },
+  }
+
   return (
     <Layout
       title={blog.title}
       description={blog.excerpt || blog.title}
       ogImage={blog.cover_image || null}
       ogUrl={`${siteUrl}/blogs/${blog.slug}`}
+      canonical={`${siteUrl}/blogs/${blog.slug}`}
     >
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }} />
       <div className="container">
         <div className="breadcrumb">
           <Link href="/">Home</Link><span>/</span>
