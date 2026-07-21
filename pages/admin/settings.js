@@ -140,6 +140,7 @@ export default function AdminSettings({ initialSettings }) {
         <nav className="admin-nav">
           <Link href="/admin">Dashboard</Link>
           <Link href="/admin/products">Products</Link>
+          <Link href="/admin/productsinventory">Inventory</Link>
           <Link href="/admin/blogs">Blogs</Link>
           <Link href="/admin/settings" style={{ color: 'var(--accent)', fontWeight: 700 }}>Site Settings</Link>
           <Link href="/" target="_blank">View Site ↗</Link>

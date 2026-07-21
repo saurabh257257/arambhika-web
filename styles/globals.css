@@ -1145,6 +1145,59 @@ a { color: inherit; text-decoration: none; }
 .ap-add-spec { font-size: 0.78rem; color: var(--accent); background: none; border: 1px dashed var(--accent);
   border-radius: 5px; padding: 0.3rem 0.75rem; cursor: pointer; margin-top: 0.25rem; }
 
+/* ══════════════════════════════════════
+   Admin Inventory Page (inv-*)
+══════════════════════════════════════ */
+.inv-cat-block { margin-bottom: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.inv-cat-header {
+  background: var(--navy); color: #fff; padding: 0.55rem 1rem;
+  font-size: 0.88rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;
+}
+.inv-cat-header span { font-size: 0.75rem; opacity: 0.7; font-weight: 400; }
+.inv-table { display: flex; flex-direction: column; }
+.inv-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.65rem 1rem; border-bottom: 1px solid var(--border);
+  background: #fff; transition: background 0.1s;
+}
+.inv-row:last-child { border-bottom: none; }
+.inv-row-dirty { background: #fffbeb; }
+.inv-info { flex: 1; min-width: 0; }
+.inv-name { font-size: 0.88rem; font-weight: 600; color: var(--navy);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.inv-sku { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
+.inv-badge {
+  font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.65rem;
+  border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+}
+.inv-avail  { background: #dcfce7; color: #15803d; }
+.inv-oor    { background: #fef9c3; color: #92400e; }
+.inv-unknown { background: var(--off); color: var(--muted); border: 1px solid var(--border); }
+.inv-qty-wrap { display: flex; align-items: center; gap: 0; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+.inv-qty-btn {
+  background: var(--off); border: none; padding: 0 0.7rem; height: 36px;
+  font-size: 1.1rem; cursor: pointer; color: var(--navy); line-height: 1;
+}
+.inv-qty-btn:hover { background: var(--border); }
+.inv-qty-input {
+  width: 64px; height: 36px; border: none; border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border); text-align: center; font-size: 0.92rem;
+  font-weight: 600; outline: none; background: #fff;
+}
+.inv-save-btn {
+  padding: 0.38rem 0.9rem; border-radius: 7px; border: none;
+  background: var(--accent); color: #fff; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; flex-shrink: 0; white-space: nowrap;
+}
+.inv-save-btn:disabled { background: var(--off); color: var(--muted); border: 1px solid var(--border); cursor: default; }
+.inv-saved { background: #16a34a; }
+.inv-shortcut-btn {
+  background: #f0fdf4; border: 1.5px solid #86efac; color: #15803d;
+  border-radius: 8px; padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 700;
+  text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.3rem;
+}
+.inv-shortcut-btn:hover { background: #dcfce7; }
+
 .pg-topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
 .pg-search { border: 1.5px solid var(--border); border-radius: 7px; padding: 0.4rem 0.8rem; font-size: 0.85rem; min-width: 180px; }
 .pg-search:focus { border-color: var(--accent); outline: none; }

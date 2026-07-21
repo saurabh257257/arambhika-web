@@ -79,6 +79,7 @@ export default function AdminCategories({ initialCategories }) {
         <nav className="admin-nav">
           <Link href="/admin">Dashboard</Link>
           <Link href="/admin/products">Products</Link>
+          <Link href="/admin/productsinventory">Inventory</Link>
           <Link href="/admin/blogs">Blogs</Link>
           <Link href="/admin/categories" style={{ color: 'var(--accent)', fontWeight: 700 }}>Categories</Link>
           <Link href="/admin/settings">Site Settings</Link>

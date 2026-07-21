@@ -438,6 +438,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
         <nav className="admin-nav">
           <Link href="/admin">Dashboard</Link>
           <Link href="/admin/products" style={{ color: 'var(--accent)', fontWeight: 700 }}>Products</Link>
+          <Link href="/admin/productsinventory">Inventory</Link>
           <Link href="/admin/blogs">Blogs</Link>
           <Link href="/admin/categories">Categories</Link>
           <Link href="/admin/settings">Site Settings</Link>
@@ -465,6 +466,9 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
             </p>
           </div>
           <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <Link href="/admin/productsinventory" className="inv-shortcut-btn">
+              📦 Update Inventory
+            </Link>
             <input className="pg-search" type="text" placeholder="Search products…"
               value={search} onChange={e => setSearch(e.target.value)} />
             <button className="btn btn-primary" onClick={addRow}>+ Add Product</button>
