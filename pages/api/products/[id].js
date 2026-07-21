@@ -19,6 +19,11 @@ export default async function handler(req, res) {
     } = req.body
     if (!name || !category) return res.status(400).json({ error: 'Name and category required' })
     try {
+      const inv = inventory != null && inventory !== '' ? Number(inventory) : null
+      // Auto-derive availability from inventory so the website stays in sync
+      const resolvedAvailability = inv !== null
+        ? (inv === 0 ? 'Available on Request' : 'in stock')
+        : (availability || 'in stock')
       updateProduct(Number(id), {
         name,
         sku: sku || null,
@@ -30,13 +35,13 @@ export default async function handler(req, res) {
         specs: JSON.stringify(specs || []),
         images: JSON.stringify(images || []),
         sort_order: Number(sort_order) || 0,
-        availability: availability || 'in stock',
+        availability: resolvedAvailability,
         condition: condition || 'new',
         material: material || null,
         dimensions: dimensions || null,
         brand: brand || 'Arambhika Enablers',
         featured: featured ? 1 : 0,
-        inventory: inventory != null && inventory !== '' ? Number(inventory) : null,
+        inventory: inv,
       })
       return res.status(200).json({ ok: true })
     } catch (err) {
