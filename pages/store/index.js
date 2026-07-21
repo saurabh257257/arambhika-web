@@ -4,13 +4,8 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
-
-export function loadQuote() {
-  try { return JSON.parse(localStorage.getItem('arambhika_quote') || '[]') } catch { return [] }
-}
-export function saveQuote(q) {
-  try { localStorage.setItem('arambhika_quote', JSON.stringify(q)) } catch {}
-}
+import { loadQuote, saveQuote } from '../../lib/quote'
+const { toCategorySlug } = require('../../lib/categorySlug')
 
 /* ── Image Lightbox ── */
 function Lightbox({ images, startIdx, onClose }) {
@@ -262,7 +257,7 @@ function CategorySidebar({ categories, activeCategory }) {
         </li>
         {categories.map(c => (
           <li key={c.category}>
-            <Link href={`/store?category=${encodeURIComponent(c.category)}`}
+            <Link href={`/store/category/${toCategorySlug(c.category)}`}
               className={`cat-sidebar-item${activeCategory === c.category ? ' active' : ''}`}>
               {c.image
                 ? <img src={c.image} alt={c.category} className="cat-sidebar-img" />
@@ -286,7 +281,7 @@ function MobileCatStrip({ categories, activeCategory }) {
         <span className="mob-catpill-label">All</span>
       </Link>
       {categories.map(c => (
-        <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
+        <Link key={c.category} href={`/store/category/${toCategorySlug(c.category)}`}
           className={`mob-catpill${activeCategory === c.category ? ' active' : ''}`}>
           {c.image
             ? <img src={c.image} alt={c.category} className="mob-catpill-img" />

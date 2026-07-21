@@ -2,7 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  images: { unoptimized: true },
+  images: {
+    deviceSizes: [640, 750, 828, 1080, 1200],
+    imageSizes: [64, 128, 256, 384],
+    formats: ['image/webp'],
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       const existing = Array.isArray(config.externals) ? config.externals : []

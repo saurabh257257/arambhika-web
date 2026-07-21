@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
+const { toCategorySlug } = require('../../lib/categorySlug')
 
 function ImageLinkRow({ label, url }) {
   const [copied, setCopied] = useState(false)
@@ -100,7 +101,7 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home',  item: siteUrl },
       { '@type': 'ListItem', position: 2, name: 'Store', item: `${siteUrl}/store` },
-      { '@type': 'ListItem', position: 3, name: product.category, item: `${siteUrl}/store?category=${encodeURIComponent(product.category)}` },
+      { '@type': 'ListItem', position: 3, name: product.category, item: `${siteUrl}/store/category/${toCategorySlug(product.category)}` },
       { '@type': 'ListItem', position: 4, name: product.name, item: pageUrl },
     ],
   }
@@ -157,7 +158,7 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
           <div className="pd-breadcrumb">
             <Link href="/">Home</Link><span>/</span>
             <Link href="/store">Store</Link><span>/</span>
-            <Link href={`/store?category=${encodeURIComponent(product.category)}`}>{product.category}</Link>
+            <Link href={`/store/category/${toCategorySlug(product.category)}`}>{product.category}</Link>
             <span>/</span><span>{product.name}</span>
           </div>
         </div>
