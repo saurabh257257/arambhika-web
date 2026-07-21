@@ -1,5 +1,5 @@
 import { getSession } from '../../../lib/session'
-import { deleteProduct, updateProduct } from '../../../lib/db'
+import { deleteProduct, updateProduct, setProductHidden } from '../../../lib/db'
 
 export default async function handler(req, res) {
   const session = await getSession(req, res)

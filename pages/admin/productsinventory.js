@@ -277,8 +277,8 @@ export default function InventoryPage({ initialProducts }) {
 export async function getServerSideProps({ req, res }) {
   const session = await getSession(req, res)
   if (!session?.admin) return { redirect: { destination: '/admin', permanent: false } }
-  const { getAllProductsSorted } = require('../../lib/db')
-  const products = getAllProductsSorted()
+  const { getAllProductsAdmin } = require('../../lib/db')
+  const products = getAllProductsAdmin()
   return {
     props: {
       initialProducts: products.map(p => ({

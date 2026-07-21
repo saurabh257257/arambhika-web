@@ -18,6 +18,7 @@ function initRow(p) {
     specs:        typeof p.specs  === 'string' ? JSON.parse(p.specs  || '[]') : (p.specs  || []),
     images:       typeof p.images === 'string' ? JSON.parse(p.images || '[]') : (p.images || []),
     sort_order:   p.sort_order   ?? 0,
+    hidden:       p.hidden       ?? 0,
     availability: p.availability || 'in stock',
     condition:    p.condition    || 'new',
     brand:        p.brand        || 'Arambhika Enablers',
@@ -106,14 +107,14 @@ function SpecsEditor({ specs, onChange }) {
 }
 
 // ── Product Card ──────────────────────────────────────────────────────────────
-function ProductCard({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, isFirst, isLast, siteUrl, allCategories }) {
+function ProductCard({ row, onUpdate, onSave, onDelete, onToggleHidden, onMoveUp, onMoveDown, isFirst, isLast, siteUrl, allCategories }) {
   const f = (field, val) => onUpdate(row.id, { [field]: val, _dirty: true })
   const firstImg = row.images[0]
   const invNum = row.inventory === '' || row.inventory == null ? null : Number(row.inventory)
   const isOOS = invNum === 0
 
   return (
-    <div className={`ap-card${row._isNew ? ' ap-card-new' : ''}${row._open ? ' ap-card-open' : ''}`}>
+    <div className={`ap-card${row._isNew ? ' ap-card-new' : ''}${row._open ? ' ap-card-open' : ''}${row.hidden ? ' ap-card-hidden' : ''}`}>
 
       {/* ── Compact summary row ── */}
       <div className="ap-summary" onClick={() => onUpdate(row.id, { _open: !row._open })}>
@@ -145,6 +146,14 @@ function ProductCard({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, is
           {!row._isNew && row.slug && (
             <a href={`${siteUrl}/store/${row.slug}`} target="_blank" rel="noopener noreferrer"
                className="ap-view-btn" title="View on site">↗</a>
+          )}
+          {!row._isNew && (
+            <button
+              className={`ap-visibility-btn${row.hidden ? ' ap-hidden-on' : ''}`}
+              title={row.hidden ? 'Hidden — click to show' : 'Visible — click to hide'}
+              onClick={() => onToggleHidden(row.id, !row.hidden)}>
+              {row.hidden ? '🙈 Hidden' : '👁 Visible'}
+            </button>
           )}
           <button className="ap-save-btn" disabled={!row._dirty || row._saving} onClick={() => onSave(row.id)}>
             {row._saving ? '…' : row._dirty ? '💾 Save' : '✓ Saved'}
@@ -291,9 +300,10 @@ function ProductCard({ row, onUpdate, onSave, onDelete, onMoveUp, onMoveDown, is
 
 // ── Category Group ────────────────────────────────────────────────────────────
 function CatGroup({ cat, catRows, isFirst, isLast, onMoveUp, onMoveDown,
-                    onUpdateRow, onSaveRow, onDeleteRow,
+                    onUpdateRow, onSaveRow, onDeleteRow, onToggleHidden,
                     onMoveProductUp, onMoveProductDown, siteUrl, allCategories }) {
   const [collapsed, setCollapsed] = useState(false)
+  const hiddenCount = catRows.filter(r => r.hidden).length
   return (
     <div className="ap-cat-group">
       <div className="ap-cat-header">
@@ -305,11 +315,15 @@ function CatGroup({ cat, catRows, isFirst, isLast, onMoveUp, onMoveDown,
           {collapsed ? '▶' : '▼'}
         </button>
         <span className="ap-cat-name">{cat}</span>
-        <span className="ap-cat-count">{catRows.length} product{catRows.length !== 1 ? 's' : ''}</span>
+        <span className="ap-cat-count">
+          {catRows.length} product{catRows.length !== 1 ? 's' : ''}
+          {hiddenCount > 0 && <span className="ap-hidden-badge"> · {hiddenCount} hidden</span>}
+        </span>
       </div>
       {!collapsed && catRows.map((row, idx) => (
         <ProductCard key={row.id} row={row} siteUrl={siteUrl} allCategories={allCategories}
           onUpdate={onUpdateRow} onSave={onSaveRow} onDelete={onDeleteRow}
+          onToggleHidden={onToggleHidden}
           onMoveUp={() => onMoveProductUp(idx)}
           onMoveDown={() => onMoveProductDown(idx)}
           isFirst={idx === 0} isLast={idx === catRows.length - 1} />
@@ -379,6 +393,15 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
     if (!confirm(`Delete "${row.name}"?`)) return
     await fetch(`/api/products/${id}`, { method: 'DELETE' })
     setRows(prev => prev.filter(r => r.id !== id))
+  }
+
+  const toggleHidden = async (id, hide) => {
+    setRows(prev => prev.map(r => r.id === id ? { ...r, hidden: hide ? 1 : 0 } : r))
+    await fetch('/api/admin/visibility', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, hidden: hide }),
+    })
   }
 
   const addRow = () => {
@@ -510,6 +533,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
               onMoveUp={() => moveCategoryUp(cat)}
               onMoveDown={() => moveCategoryDown(cat)}
               onUpdateRow={updateRow} onSaveRow={saveRow} onDeleteRow={deleteRow}
+              onToggleHidden={toggleHidden}
               onMoveProductUp={(idx) => moveProductInCat(catRows, idx, -1)}
               onMoveProductDown={(idx) => moveProductInCat(catRows, idx, +1)}
               siteUrl={siteUrl} allCategories={catOrder} />
@@ -524,8 +548,8 @@ export async function getServerSideProps({ req, res }) {
   const session = await getSession(req, res)
   if (!session?.admin) return { redirect: { destination: '/admin', permanent: false } }
   try {
-    const { getAllProductsSorted, getCategoriesOrdered, getCategoryNames } = require('../../../lib/db')
-    const products = getAllProductsSorted()
+    const { getAllProductsAdmin, getCategoriesOrdered, getCategoryNames } = require('../../../lib/db')
+    const products = getAllProductsAdmin()
     const catData  = getCategoriesOrdered()
     const catNames = getCategoryNames()
     const dbOrder  = catData.map(c => c.category)
