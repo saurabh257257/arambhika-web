@@ -75,7 +75,9 @@ function ViewMode({ rows }) {
                     <div className="inv-view-name">{r.name}</div>
                     {r.sku && <div className="inv-view-sku">#{r.sku}</div>}
                     <div className={`inv-view-badge inv-badge-${st}`}>
-                      {st === 'in' ? '● Available' : st === 'request' ? '● On Request' : '— not set'}
+                      {st === 'in'
+                        ? `● ${r.inventory}${r.unit ? ' ' + r.unit : ''}`
+                        : st === 'request' ? '● On Request' : '— not set'}
                     </div>
                   </div>
                 )
@@ -250,7 +252,7 @@ export async function getServerSideProps({ req, res }) {
       initialProducts: products.map(p => ({
         id: p.id, name: p.name, sku: p.sku || '', category: p.category,
         inventory: p.inventory ?? '', availability: p.availability || 'in stock',
-        _dirty: false,
+        unit: p.unit || '', _dirty: false,
       })),
     },
   }
