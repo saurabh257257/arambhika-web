@@ -500,7 +500,7 @@ a { color: inherit; text-decoration: none; }
   display: flex; align-items: center; justify-content: center;
   font-size: 0.6rem; font-weight: 800; color: #fff;
 }
-.cat-sidebar-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-sidebar-name { flex: 1; min-width: 0; word-break: break-word; line-height: 1.35; }
 
 /* ── Store main column ── */
 .store-main {
