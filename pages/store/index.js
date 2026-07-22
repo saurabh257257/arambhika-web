@@ -272,6 +272,28 @@ function CategorySidebar({ categories, activeCategory }) {
   )
 }
 
+/* ── Desktop category top bar ── */
+function DesktopCatBar({ categories, activeCategory }) {
+  return (
+    <div className="desk-cat-bar">
+      <Link href="/store" className={`desk-cat-tab${!activeCategory ? ' active' : ''}`}>
+        <span className="desk-cat-all">All</span>
+        All Products
+      </Link>
+      {categories.map(c => (
+        <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
+          className={`desk-cat-tab${activeCategory === c.category ? ' active' : ''}`}>
+          {c.image
+            ? <img src={c.image} alt={c.category} className="desk-cat-img" />
+            : <span className="desk-cat-icon">{c.category.slice(0,2).toUpperCase()}</span>
+          }
+          {c.category}
+        </Link>
+      ))}
+    </div>
+  )
+}
+
 /* ── Mobile category strip ── */
 function MobileCatStrip({ categories, activeCategory }) {
   return (
@@ -338,10 +360,13 @@ export default function Store({ products, categories, activeCategory, settings }
         <MobileCatStrip categories={categories} activeCategory={activeCategory} />
       </div>
 
-      {/* 3-column layout */}
-      <div className="store-layout">
-        <CategorySidebar categories={categories} activeCategory={activeCategory} />
+      {/* Desktop category top bar */}
+      <div className="desk-cat-bar-wrap">
+        <DesktopCatBar categories={categories} activeCategory={activeCategory} />
+      </div>
 
+      {/* Layout: desktop = products + quote, mobile = full width */}
+      <div className="store-layout">
         <main className="store-main">
           {activeCategory && (
             <div className="store-cat-header">

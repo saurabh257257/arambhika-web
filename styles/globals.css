@@ -450,9 +450,52 @@ a { color: inherit; text-decoration: none; }
 .sc-suggest-footer { padding: 0.45rem 1rem; font-size: 0.75rem; color: var(--muted); background: var(--off); text-align: center; border-top: 1px solid var(--border); }
 
 /* ── 3-column store layout ── */
+/* ── Desktop category top bar ── */
+.desk-cat-bar-wrap {
+  display: none;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+  position: sticky; top: 107px; z-index: 40;
+  overflow-x: auto; scrollbar-width: none;
+}
+.desk-cat-bar-wrap::-webkit-scrollbar { display: none; }
+.desk-cat-bar {
+  display: flex; align-items: center; gap: 0.25rem;
+  padding: 0.5rem 1.5rem; min-width: max-content;
+}
+.desk-cat-tab {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 1rem; border-radius: 20px;
+  font-size: 0.85rem; font-weight: 500; color: #374151;
+  text-decoration: none; white-space: nowrap;
+  border: 1.5px solid transparent;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.desk-cat-tab:hover { background: #eff6ff; color: var(--accent); }
+.desk-cat-tab.active {
+  background: #dbeafe; color: var(--accent);
+  font-weight: 700; border-color: #93c5fd;
+}
+.desk-cat-img {
+  width: 24px; height: 24px; border-radius: 4px;
+  object-fit: contain; border: 1px solid var(--border); background: #fff;
+}
+.desk-cat-icon {
+  width: 24px; height: 24px; border-radius: 4px; flex-shrink: 0;
+  background: linear-gradient(135deg,#eff6ff,#dbeafe);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; font-weight: 800; color: var(--accent);
+}
+.desk-cat-all {
+  width: 24px; height: 24px; border-radius: 4px; flex-shrink: 0;
+  background: var(--navy); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.58rem; font-weight: 800;
+}
+
 .store-layout {
   display: grid;
-  grid-template-columns: 220px 1fr 280px;
+  grid-template-columns: 1fr;
   min-height: calc(100vh - 120px);
   align-items: start;
 }
@@ -1004,9 +1047,20 @@ a { color: inherit; text-decoration: none; }
   .home-products-header { margin-bottom: 1.25rem; }
 }
 
-/* Desktop only: hide mobile cat strip */
+/* Desktop only */
 @media (min-width: 769px) {
   .mob-catstrip-wrap { display: none; }
+  .desk-cat-bar-wrap { display: block; }
+  .cat-sidebar { display: none; }
+  .store-layout { grid-template-columns: 1fr 300px; }
+  /* 3-column product grid on desktop */
+  .pcard-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  /* Vertical card on desktop */
+  .pcard { flex-direction: column; min-height: unset; }
+  .pcard-img-wrap { width: 100%; height: 180px; border-right: none; border-bottom: 1px solid var(--border); }
+  .pcard-body { padding: 0.85rem; }
+  .pcard-name { font-size: 0.9rem; }
+  .pcard-meta { font-size: 0.72rem; }
 }
 
 /* ══════════════════════════════════════
