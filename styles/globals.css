@@ -1058,18 +1058,70 @@ a { color: inherit; text-decoration: none; }
   .mob-catstrip-wrap { display: none; }
   .desk-cat-bar-wrap { display: block; }
   .cat-sidebar { display: none; }
-  .store-layout { grid-template-columns: 1fr 300px; }
-  /* 3-column product grid on desktop */
-  .pcard-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.85rem; }
-  /* Vertical card on desktop */
-  .pcard { flex-direction: column; min-height: unset; }
-  .pcard-img-wrap { width: 100%; height: 150px; border-right: none; border-bottom: 1px solid var(--border); }
-  .pcard-body { padding: 0.75rem 0.85rem; }
-  .pcard-name { font-size: 0.88rem; }
-  .pcard-meta { font-size: 0.7rem; }
-  /* Hide description so 2 rows of 3 fit on screen */
-  .pcard-desc { display: none; }
-  .pcard-desc-toggle { display: none; }
+  /* Hide mobile layout on desktop */
+  .store-layout { display: none; }
+  /* Show desktop layout */
+  .dsk-layout { display: grid; grid-template-columns: 1fr 280px; align-items: start; min-height: calc(100vh - 160px); }
+}
+
+/* Mobile: hide desktop layout */
+.dsk-layout { display: none; }
+
+/* ── Desktop grouped store ── */
+.dsk-store { padding: 1rem 1.25rem; }
+.dsk-cat-section { margin-bottom: 2rem; }
+.dsk-cat-hdr { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 0.75rem; }
+.dsk-cat-title { font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #1a1a2e; }
+.dsk-cat-more { font-size: 0.8rem; color: var(--accent); text-decoration: none; font-weight: 600; }
+.dsk-cat-more:hover { text-decoration: underline; }
+
+.dsk-row {
+  display: flex; gap: 0.85rem;
+  overflow-x: auto; padding-bottom: 0.5rem;
+  scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent;
+}
+.dsk-row::-webkit-scrollbar { height: 4px; }
+.dsk-row::-webkit-scrollbar-track { background: transparent; }
+.dsk-row::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
+/* ── Desktop card ── */
+.dsk-card {
+  flex: 0 0 180px; width: 180px;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  transition: box-shadow 0.15s, transform 0.15s;
+  display: flex; flex-direction: column;
+}
+.dsk-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.13); transform: translateY(-2px); }
+.dsk-card-img-link { display: block; }
+.dsk-card-img-wrap {
+  width: 100%; height: 160px; background: #f8faff;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.dsk-card-img { width: 100%; height: 100%; object-fit: contain; padding: 0.5rem; }
+.dsk-card-img-empty { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+.dsk-card-body { padding: 0.6rem 0.75rem 0.75rem; display: flex; flex-direction: column; flex: 1; }
+.dsk-card-brand { font-size: 0.68rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.2rem; }
+.dsk-card-name-link { text-decoration: none; color: inherit; }
+.dsk-card-name { font-size: 0.82rem; font-weight: 700; color: #1a1a2e; line-height: 1.35; margin-bottom: 0.3rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.dsk-card-moq { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.2rem; }
+.dsk-card-price { font-size: 0.9rem; font-weight: 800; color: var(--price); margin-bottom: 0.5rem; }
+.dsk-card-unit { font-size: 0.7rem; font-weight: 400; color: var(--muted); }
+.dsk-card-add {
+  margin-top: auto; width: 100%; padding: 0.45rem;
+  background: #16a34a; color: #fff; border: none; border-radius: 6px;
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.05em; cursor: pointer;
+  transition: background 0.15s;
+}
+.dsk-card-add:hover { background: #15803d; }
+.dsk-card-add.added { background: var(--accent); }
+
+.dsk-quote-col {
+  border-left: 1px solid var(--border);
+  position: sticky; top: 107px;
+  max-height: calc(100vh - 115px); overflow-y: auto;
 }
 
 /* ══════════════════════════════════════

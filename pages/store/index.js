@@ -316,6 +316,73 @@ function MobileCatStrip({ categories, activeCategory }) {
   )
 }
 
+/* ── Desktop compact card ── */
+function DeskCard({ p, quote, onQtyChange }) {
+  const images = JSON.parse(p.images || '[]')
+  const minQty = Number(p.min_qty) || 1
+  const inQuote = quote.find(x => x.id === p.id)
+  const qty = inQuote ? inQuote.qty : minQty
+  const availSt = p.availability === 'out of stock' ? 'out'
+    : p.availability === 'Available on Request' ? 'request' : 'in'
+
+  return (
+    <div className="dsk-card">
+      <Link href={`/store/${p.slug}`} className="dsk-card-img-link">
+        <div className="dsk-card-img-wrap">
+          {images[0]
+            ? <img src={images[0]} alt={p.name} className="dsk-card-img" loading="lazy" />
+            : <div className="dsk-card-img-empty">{p.name.slice(0,2).toUpperCase()}</div>}
+        </div>
+      </Link>
+      <div className="dsk-card-body">
+        {p.brand && <div className="dsk-card-brand">{p.brand}</div>}
+        <Link href={`/store/${p.slug}`} className="dsk-card-name-link">
+          <div className="dsk-card-name">{p.name}</div>
+        </Link>
+        {p.min_qty && <div className="dsk-card-moq">MOQ: {p.min_qty} {p.unit || ''}</div>}
+        {p.price && <div className="dsk-card-price">₹{p.price}<span className="dsk-card-unit"> / {p.unit || 'unit'}</span></div>}
+        <button
+          className={`dsk-card-add${inQuote ? ' added' : ''}`}
+          onClick={() => onQtyChange(p, qty)}>
+          {inQuote ? '✓ Added' : 'ADD'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ── Desktop grouped view ── */
+function DesktopGroupedStore({ products, categories, activeCategory, quote, onQtyChange }) {
+  const catOrder = categories.map(c => c.category)
+  const grouped = {}
+  catOrder.forEach(c => { grouped[c] = [] })
+  products.forEach(p => {
+    if (!grouped[p.category]) grouped[p.category] = []
+    grouped[p.category].push(p)
+  })
+  const visibleCats = activeCategory
+    ? [activeCategory]
+    : catOrder.filter(c => grouped[c]?.length > 0)
+
+  return (
+    <div className="dsk-store">
+      {visibleCats.map(cat => (
+        <div key={cat} className="dsk-cat-section" id={`cat-${cat.replace(/\s+/g,'-')}`}>
+          <div className="dsk-cat-hdr">
+            <h2 className="dsk-cat-title">{cat}</h2>
+            {!activeCategory && <Link href={`/store?category=${encodeURIComponent(cat)}`} className="dsk-cat-more">See all →</Link>}
+          </div>
+          <div className="dsk-row">
+            {(grouped[cat] || []).map(p => (
+              <DeskCard key={p.id} p={p} quote={quote} onQtyChange={onQtyChange} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 /* ── Main store page ── */
 export default function Store({ products, categories, activeCategory, settings }) {
   const WA = settings.wa_number || '919315545821'
@@ -347,7 +414,6 @@ export default function Store({ products, categories, activeCategory, settings }
     <Layout title="Product Store" settings={settings}
       description="Browse our full catalog of nickel strips, copper busbars, and battery connectors.">
 
-      {/* noindex search/filter result pages — keep only clean product pages in Google */}
       {search && <Head><meta name="robots" content="noindex, follow" /></Head>}
 
       {/* Sticky search */}
@@ -365,7 +431,28 @@ export default function Store({ products, categories, activeCategory, settings }
         <DesktopCatBar categories={categories} activeCategory={activeCategory} />
       </div>
 
-      {/* Layout: desktop = products + quote, mobile = full width */}
+      {/* ── DESKTOP layout ── */}
+      <div className="dsk-layout">
+        {filtered.length === 0 ? (
+          <div className="empty-state" style={{ padding: '3rem' }}>
+            <h3>No products found</h3>
+            <p>{search ? 'Try a different search term.' : 'No products available.'}</p>
+          </div>
+        ) : (
+          <DesktopGroupedStore
+            products={filtered} categories={categories}
+            activeCategory={activeCategory}
+            quote={quote} onQtyChange={upsertQuote} />
+        )}
+        <aside className="dsk-quote-col">
+          <QuotePanel quote={quote} WA={WA}
+            onRemove={removeFromQuote}
+            onQtyChange={(item, qty) => upsertQuote(item, qty)}
+            onClear={() => setQuote([])} />
+        </aside>
+      </div>
+
+      {/* ── MOBILE layout ── */}
       <div className="store-layout">
         <main className="store-main">
           {activeCategory && (
@@ -377,7 +464,7 @@ export default function Store({ products, categories, activeCategory, settings }
           {filtered.length === 0 ? (
             <div className="empty-state">
               <h3>No products found</h3>
-              <p>{search ? 'Try a different search term.' : <>Add products from the <Link href="/admin/products">admin panel</Link>.</>}</p>
+              <p>{search ? 'Try a different search term.' : 'No products available.'}</p>
             </div>
           ) : (
             <div className="pcard-list">
