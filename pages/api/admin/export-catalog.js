@@ -48,7 +48,7 @@ export default async function handler(req, res) {
       p.condition || 'new',
       fmtPrice(p.price),
       `${siteUrl}/store/${p.slug}`,
-      images[0] || '',
+      images[0] ? (images[0].startsWith('http') ? images[0] : `${siteUrl}${images[0]}`) : '',
       p.brand || brand,
     ]
   })
