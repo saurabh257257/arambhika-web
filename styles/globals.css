@@ -389,7 +389,7 @@ a { color: inherit; text-decoration: none; }
 }
 .mob-catstrip-wrap::-webkit-scrollbar { display: none; }
 .mob-catstrip {
-  display: flex; align-items: flex-end; gap: 0.65rem;
+  display: flex; align-items: flex-start; gap: 0.65rem;
   padding: 0.65rem 1rem; min-width: max-content;
 }
 .mob-catpill {
