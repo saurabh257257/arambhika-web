@@ -278,7 +278,7 @@ function DesktopCatBar({ categories, activeCategory }) {
     <div className="desk-cat-bar">
       <Link href="/store" className={`desk-cat-tab${!activeCategory ? ' active' : ''}`}>
         <span className="desk-cat-all">All</span>
-        All Products
+        <span className="desk-cat-label">All Products</span>
       </Link>
       {categories.map(c => (
         <Link key={c.category} href={`/store?category=${encodeURIComponent(c.category)}`}
@@ -287,7 +287,7 @@ function DesktopCatBar({ categories, activeCategory }) {
             ? <img src={c.image} alt={c.category} className="desk-cat-img" />
             : <span className="desk-cat-icon">{c.category.slice(0,2).toUpperCase()}</span>
           }
-          {c.category}
+          <span className="desk-cat-label">{c.category}</span>
         </Link>
       ))}
     </div>
