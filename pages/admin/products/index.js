@@ -508,6 +508,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
               value={search} onChange={e => setSearch(e.target.value)} />
             <button className="btn btn-primary" onClick={addRow}>+ Add Product</button>
             <button className="btn-secondary" onClick={() => window.location.href = '/api/admin/export'}>⬇ Export Excel</button>
+            <button className="btn-secondary" onClick={() => window.location.href = '/api/admin/export-catalog'}>📲 WhatsApp Catalog</button>
           </div>
         </div>
 
