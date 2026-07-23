@@ -1028,8 +1028,6 @@ a { color: inherit; text-decoration: none; }
   .nav-links { display: none; }
   .btn-wa-nav { display: none; }
   .btn-call-nav { display: none; }
-  .nav-mob-actions { display: none; }
-  /* On desktop, show the full buttons */
   .nav-hamburger { display: flex; }
 
   /* Store layout — mobile stacked */
