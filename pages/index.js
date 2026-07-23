@@ -13,7 +13,7 @@ function HeroCarousel({ images }) {
   return (
     <div className="hero-carousel">
       {images.map((src, i) => (
-        <img key={i} src={src} alt="" className={i === idx ? 'active' : ''} />
+        <img key={i} src={src} alt={`Product showcase ${i + 1}`} className={i === idx ? 'active' : ''} />
       ))}
       {images.length > 1 && (
         <div className="carousel-dots">
@@ -113,8 +113,8 @@ export default function Home({ featured, categories, settings, heroImages }) {
   return (
     <Layout settings={settings}
       canonical={siteUrl}
-      ogUrl={siteUrl}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }} />
+      ogUrl={siteUrl}
+      jsonLd={localBusinessLd}>
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">

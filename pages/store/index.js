@@ -8,7 +8,7 @@ import { loadQuote, saveQuote } from '../../lib/quote'
 import { toCategorySlug } from '../../lib/categorySlug'
 
 /* ── Image Lightbox ── */
-function Lightbox({ images, startIdx, onClose }) {
+function Lightbox({ images, startIdx, onClose, alt = '' }) {
   const [idx, setIdx] = useState(startIdx)
   useEffect(() => {
     const handler = (e) => {
@@ -26,7 +26,7 @@ function Lightbox({ images, startIdx, onClose }) {
       <button className="lb-close" onClick={onClose}>✕</button>
       <button className="lb-arrow lb-arrow-l" onClick={e => { e.stopPropagation(); setIdx(i => (i - 1 + images.length) % images.length) }}>&#8249;</button>
       <div className="lb-img-wrap" onClick={e => e.stopPropagation()}>
-        <img src={images[idx]} alt="" className="lb-img" />
+        <img src={images[idx]} alt={alt} className="lb-img" />
       </div>
       <button className="lb-arrow lb-arrow-r" onClick={e => { e.stopPropagation(); setIdx(i => (i + 1) % images.length) }}>&#8250;</button>
       {images.length > 1 && (
@@ -60,7 +60,7 @@ function ProductCard({ p, quote, onQtyChange }) {
   return (
     <article className="pcard">
       {/* Image */}
-      {lightbox && <Lightbox images={images} startIdx={imgIdx} onClose={() => setLightbox(false)} />}
+      {lightbox && <Lightbox images={images} startIdx={imgIdx} alt={p.name} onClose={() => setLightbox(false)} />}
       <div className="pcard-img-wrap" onClick={() => images.length > 0 && setLightbox(true)} style={{ cursor: images.length > 0 ? 'zoom-in' : 'default' }}>
         {images.length > 0 ? (
           <>
@@ -243,35 +243,6 @@ function SearchBox({ products, search, setSearch }) {
   )
 }
 
-/* ── Category sidebar (desktop) ── */
-function CategorySidebar({ categories, activeCategory }) {
-  return (
-    <aside className="cat-sidebar">
-      <h3 className="cat-sidebar-title">Categories</h3>
-      <ul className="cat-sidebar-list">
-        <li>
-          <Link href="/store" className={`cat-sidebar-item${!activeCategory ? ' active' : ''}`}>
-            <span className="cat-sidebar-all">All</span>
-            <span className="cat-sidebar-name">All Products</span>
-          </Link>
-        </li>
-        {categories.map(c => (
-          <li key={c.category}>
-            <Link href={`/store?category=${encodeURIComponent(c.category)}`}
-              className={`cat-sidebar-item${activeCategory === c.category ? ' active' : ''}`}>
-              {c.image
-                ? <img src={c.image} alt={c.category} className="cat-sidebar-img" />
-                : <span className="cat-sidebar-placeholder">{c.category.slice(0,2).toUpperCase()}</span>
-              }
-              <span className="cat-sidebar-name">{c.category}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </aside>
-  )
-}
-
 /* ── Desktop category top bar ── */
 function DesktopCatBar({ categories, activeCategory }) {
   return (
@@ -392,7 +363,7 @@ function DesktopGroupedStore({ products, categories, activeCategory, quote, onQt
 }
 
 /* ── Main store page ── */
-export default function Store({ products, categories, activeCategory, settings }) {
+export default function Store({ products, categories, activeCategory, settings, canonical }) {
   const WA = settings.wa_number || '919315545821'
   const [search, setSearch]       = useState('')
   const [quote, setQuote]         = useState([])
@@ -420,7 +391,8 @@ export default function Store({ products, categories, activeCategory, settings }
 
   return (
     <Layout title="Product Store" settings={settings}
-      description="Browse our full catalog of nickel strips, copper busbars, and battery connectors.">
+      description="Browse our full catalog of nickel strips, copper busbars, and battery connectors."
+      canonical={canonical} ogUrl={canonical}>
 
       {search && <Head><meta name="robots" content="noindex, follow" /></Head>}
 
@@ -485,12 +457,6 @@ export default function Store({ products, categories, activeCategory, settings }
           )}
         </main>
 
-        <aside className="store-quote-col">
-          <QuotePanel quote={quote} WA={WA}
-            onRemove={removeFromQuote}
-            onQtyChange={(item, qty) => upsertQuote(item, qty)}
-            onClear={() => setQuote([])} />
-        </aside>
       </div>
 
       {/* Mobile floating quote button */}
@@ -519,6 +485,7 @@ export async function getServerSideProps({ query }) {
     const allProducts    = getAllProductsSorted()
     const catData        = getCategoriesOrdered()
     const settings       = getSettings()
+    const siteUrl        = process.env.NEXT_PUBLIC_SITE_URL || 'https://arambhikaenablers.in'
 
     const catOrder = catData.map(c => c.category)
     allProducts.forEach(p => { if (p.category && !catOrder.includes(p.category)) catOrder.push(p.category) })
@@ -529,8 +496,12 @@ export async function getServerSideProps({ query }) {
       .filter(c => allProducts.some(p => p.category === c))
       .map(c => ({ category: c, image: catImageMap[c] || null }))
 
-    return { props: { products: products.map(p => ({ ...p })), categories, activeCategory, settings } }
+    const canonical = activeCategory
+      ? `${siteUrl}/store?category=${encodeURIComponent(activeCategory)}`
+      : `${siteUrl}/store`
+
+    return { props: { products: products.map(p => ({ ...p })), categories, activeCategory, settings, canonical } }
   } catch {
-    return { props: { products: [], categories: [], activeCategory: null, settings: {} } }
+    return { props: { products: [], categories: [], activeCategory: null, settings: {}, canonical: '' } }
   }
 }

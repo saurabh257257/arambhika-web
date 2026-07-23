@@ -1,54 +1,32 @@
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://arambhikaenablers.in'
+
+function urlEntry(loc, priority = '0.7', changefreq = 'weekly') {
+  return `  <url><loc>${loc}</loc><changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`
+}
+
 export default function Sitemap() { return null }
 
 export async function getServerSideProps({ res }) {
-  const { getAllProductSlugs, getAllBlogSlugs } = require('../lib/db')
-  const base = process.env.SITE_URL || 'https://arambhikaenablers.in'
+  const { getAllProductSlugs, getCategoriesOrdered } = require('../lib/db')
 
-  const staticPages = [
-    { loc: base,          priority: '1.0', freq: 'weekly' },
-    { loc: `${base}/store`,   priority: '0.9', freq: 'daily'  },
-    { loc: `${base}/blogs`,   priority: '0.7', freq: 'weekly' },
-    { loc: `${base}/about`,   priority: '0.6', freq: 'monthly'},
-    { loc: `${base}/contact`, priority: '0.6', freq: 'monthly'},
+  const slugs      = getAllProductSlugs().map(r => r.slug)
+  const categories = getCategoriesOrdered().map(c => c.category)
+
+  const entries = [
+    urlEntry(`${SITE_URL}`,         '1.0', 'daily'),
+    urlEntry(`${SITE_URL}/store`,   '0.9', 'daily'),
+    urlEntry(`${SITE_URL}/blogs`,   '0.7', 'weekly'),
+    urlEntry(`${SITE_URL}/about`,   '0.6', 'monthly'),
+    urlEntry(`${SITE_URL}/contact`, '0.6', 'monthly'),
+    ...categories.map(c => urlEntry(`${SITE_URL}/store?category=${encodeURIComponent(c)}`, '0.8', 'weekly')),
+    ...slugs.map(s => urlEntry(`${SITE_URL}/store/${s}`, '0.8', 'weekly')),
   ]
 
-  const products = getAllProductSlugs()
-  const blogs    = getAllBlogSlugs()
-  const now      = new Date().toISOString().split('T')[0]
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>`
 
-  const urls = [
-    ...staticPages.map(p => `
-  <url>
-    <loc>${p.loc}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>${p.freq}</changefreq>
-    <priority>${p.priority}</priority>
-  </url>`),
-    ...products.map(p => `
-  <url>
-    <loc>${base}/store/${p.slug}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>`),
-    ...blogs.map(b => `
-  <url>
-    <loc>${base}/blogs/${b.slug}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>`),
-  ]
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.join('')}
-</urlset>`
-
-  res.setHeader('Content-Type', 'application/xml; charset=utf-8')
-  res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate')
+  res.setHeader('Content-Type', 'application/xml')
+  res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate')
   res.write(xml)
   res.end()
-
   return { props: {} }
 }

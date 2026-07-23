@@ -19,7 +19,7 @@ function ImageLinkRow({ label, url }) {
   )
 }
 
-function Lightbox({ images, startIdx, onClose }) {
+function Lightbox({ images, startIdx, onClose, alt = '' }) {
   const [idx, setIdx] = useState(startIdx)
   useEffect(() => {
     const handler = (e) => {
@@ -36,7 +36,7 @@ function Lightbox({ images, startIdx, onClose }) {
       <button className="lb-close" onClick={onClose}>✕</button>
       <button className="lb-arrow lb-arrow-l" onClick={e => { e.stopPropagation(); setIdx(i => (i - 1 + images.length) % images.length) }}>&#8249;</button>
       <div className="lb-img-wrap" onClick={e => e.stopPropagation()}>
-        <img src={images[idx]} alt="" className="lb-img" />
+        <img src={images[idx]} alt={alt} className="lb-img" />
       </div>
       <button className="lb-arrow lb-arrow-r" onClick={e => { e.stopPropagation(); setIdx(i => (i + 1) % images.length) }}>&#8250;</button>
       {images.length > 1 && (
@@ -147,9 +147,9 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
   const waMsg = encodeURIComponent(`Hi, I want to order:\n• ${product.name}${product.sku ? ` (${product.sku})` : ''}\n\nProduct page: ${pageUrl}`)
 
   return (
-    <Layout title={product.name} description={metaDesc} ogImage={images[0] || null} ogUrl={pageUrl} settings={settings}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+    <Layout title={product.name} description={metaDesc} ogImage={images[0] || null}
+      ogUrl={pageUrl} canonical={pageUrl} settings={settings}
+      jsonLd={[jsonLd, breadcrumbLd]}>
 
       {/* Breadcrumb / back */}
       <div className="pd-topbar">
@@ -171,7 +171,7 @@ export default function ProductPage({ product, siteUrl, settings = {} }) {
           <div className="pd-layout">
             {/* Images */}
             <div className="pd-img-col">
-              {lightbox && <Lightbox images={images} startIdx={imgIdx} onClose={() => setLightbox(false)} />}
+              {lightbox && <Lightbox images={images} startIdx={imgIdx} alt={product.name} onClose={() => setLightbox(false)} />}
               <div className="pd-carousel" onClick={() => images.length > 0 && setLightbox(true)} style={{ cursor: images.length > 0 ? 'zoom-in' : 'default' }}>
                 {images.length > 0 ? (
                   <>
@@ -355,7 +355,7 @@ export async function getServerSideProps({ params }) {
     const product = getProductBySlug(params.slug)
     if (!product) return { notFound: true }
     const settings = getSettings()
-    const siteUrl = process.env.SITE_URL || 'http://168.144.189.151'
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://arambhikaenablers.in'
     return { props: { product: { ...product }, siteUrl, settings } }
   } catch {
     return { notFound: true }

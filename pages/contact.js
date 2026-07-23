@@ -1,7 +1,7 @@
 import Layout from '../components/Layout'
 
 export default function Contact({ settings = {} }) {
-  const siteUrl = process.env.SITE_URL || 'https://arambhikaenablers.in'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://arambhikaenablers.in'
   const brand   = settings.brand_name || 'Arambhika Enablers'
   const address = settings.address    || 'Plot No. C-03, Sector 4, Greater Noida, UP – 201318'
   const phone1  = settings.phone1     || '+91-9315545821'

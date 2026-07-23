@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 
-export default function Layout({ children, title, description, ogImage, ogUrl, canonical, settings = {} }) {
+export default function Layout({ children, title, description, ogImage, ogUrl, canonical, jsonLd, settings = {} }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const brandName  = settings.brand_name    || 'Arambhika Enablers'
   const tagline    = settings.brand_tagline || 'Nickel & Copper Battery Connectors'
@@ -33,11 +33,15 @@ export default function Layout({ children, title, description, ogImage, ogUrl, c
         <meta property="og:description" content={metaDesc} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content={ogImg} />
+        <meta property="og:site_name" content={brandName} />
         {ogUrl && <meta property="og:url" content={ogUrl} />}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content={ogImg} />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        {jsonLd && (Array.isArray(jsonLd) ? jsonLd : [jsonLd]).map((ld, i) => (
+          <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+        ))}
       </Head>
 
       <header className="site-header">
