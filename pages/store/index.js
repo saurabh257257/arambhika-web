@@ -434,24 +434,26 @@ export default function Store({ products, categories, activeCategory, settings }
         <MobileCatStrip categories={categories} activeCategory={activeCategory} />
       </div>
 
-      {/* Desktop category top bar */}
-      <div className="desk-cat-bar-wrap">
-        <DesktopCatBar categories={categories} activeCategory={activeCategory} />
-      </div>
-
       {/* ── DESKTOP layout ── */}
       <div className="dsk-layout">
-        {filtered.length === 0 ? (
-          <div className="empty-state" style={{ padding: '3rem' }}>
-            <h3>No products found</h3>
-            <p>{search ? 'Try a different search term.' : 'No products available.'}</p>
+        {/* Left: cat bar + products */}
+        <div className="dsk-main">
+          <div className="desk-cat-bar-wrap">
+            <DesktopCatBar categories={categories} activeCategory={activeCategory} />
           </div>
-        ) : (
-          <DesktopGroupedStore
-            products={filtered} categories={categories}
-            activeCategory={activeCategory}
-            quote={quote} onQtyChange={upsertQuote} />
-        )}
+          {filtered.length === 0 ? (
+            <div className="empty-state" style={{ padding: '3rem' }}>
+              <h3>No products found</h3>
+              <p>{search ? 'Try a different search term.' : 'No products available.'}</p>
+            </div>
+          ) : (
+            <DesktopGroupedStore
+              products={filtered} categories={categories}
+              activeCategory={activeCategory}
+              quote={quote} onQtyChange={upsertQuote} />
+          )}
+        </div>
+        {/* Right: sticky quote panel */}
         <aside className="dsk-quote-col">
           <QuotePanel quote={quote} WA={WA}
             onRemove={removeFromQuote}

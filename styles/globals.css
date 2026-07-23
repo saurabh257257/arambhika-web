@@ -468,6 +468,7 @@ a { color: inherit; text-decoration: none; }
   position: sticky; top: 122px; z-index: 40;
   overflow-x: auto; scrollbar-width: none;
 }
+.dsk-main { min-width: 0; }
 .desk-cat-bar-wrap::-webkit-scrollbar { display: none; }
 .desk-cat-bar {
   display: flex; align-items: flex-start; gap: 0.25rem;
@@ -1070,10 +1071,10 @@ a { color: inherit; text-decoration: none; }
 /* Desktop only */
 @media (min-width: 769px) {
   .mob-catstrip-wrap { display: none; }
-  .desk-cat-bar-wrap { display: block; }
   .cat-sidebar { display: none; }
   .store-layout { display: none; }
   .dsk-layout { display: grid; grid-template-columns: 1fr 280px; align-items: start; }
+  .desk-cat-bar-wrap { display: block; }
 }
 
 /* ── Desktop grouped store ── */
@@ -1137,8 +1138,8 @@ a { color: inherit; text-decoration: none; }
 
 .dsk-quote-col {
   position: sticky;
-  top: 245px;
-  max-height: calc(100vh - 250px);
+  top: 122px;
+  max-height: calc(100vh - 130px);
   overflow-y: auto;
   border-left: 1px solid var(--border);
   background: #fff;
