@@ -322,8 +322,11 @@ function DeskCard({ p, quote, onQtyChange }) {
   const minQty = Number(p.min_qty) || 1
   const inQuote = quote.find(x => x.id === p.id)
   const qty = inQuote ? inQuote.qty : minQty
-  const availSt = p.availability === 'out of stock' ? 'out'
-    : p.availability === 'Available on Request' ? 'request' : 'in'
+
+  const changeQty = (delta) => {
+    const next = Math.max(minQty, qty + delta)
+    onQtyChange(p, next)
+  }
 
   return (
     <div className="dsk-card">
@@ -341,10 +344,15 @@ function DeskCard({ p, quote, onQtyChange }) {
         </Link>
         {p.min_qty && <div className="dsk-card-moq">MOQ: {p.min_qty} {p.unit || ''}</div>}
         {p.price && <div className="dsk-card-price">₹{p.price}<span className="dsk-card-unit"> / {p.unit || 'unit'}</span></div>}
+        <div className="dsk-card-qty">
+          <button onClick={() => changeQty(-1)}>−</button>
+          <span>{qty} {p.unit || 'unit'}</span>
+          <button onClick={() => changeQty(+1)}>+</button>
+        </div>
         <button
           className={`dsk-card-add${inQuote ? ' added' : ''}`}
           onClick={() => onQtyChange(p, qty)}>
-          {inQuote ? '✓ Added' : 'ADD'}
+          {inQuote ? '✓ Added to Quote' : 'Add to Quote'}
         </button>
       </div>
     </div>
