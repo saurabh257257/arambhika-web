@@ -1334,6 +1334,38 @@ a { color: inherit; text-decoration: none; }
 }
 .inv-shortcut-btn:hover { background: #dcfce7; }
 
+/* ── Inventory: view tabs ── */
+.inv-view-tabs { display: flex; gap: 0; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; width: fit-content; margin-bottom: 1.25rem; }
+.inv-view-tab { background: #fff; border: none; padding: 0.45rem 1.25rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--muted); display: flex; align-items: center; gap: 0.35rem; }
+.inv-view-tab.active { background: var(--accent); color: #fff; }
+.inv-history-count { font-size: 0.75rem; background: rgba(255,255,255,0.25); border-radius: 20px; padding: 0.05rem 0.4rem; }
+
+/* ── Inventory: history timeline ── */
+.inv-history { display: flex; flex-direction: column; gap: 1rem; }
+.inv-history-day { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.inv-history-day-hdr {
+  background: var(--navy); color: #fff; padding: 0.5rem 1rem;
+  font-size: 0.85rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.inv-history-day-hdr span { font-size: 0.72rem; opacity: 0.6; font-weight: 400; }
+.inv-history-entries { background: #fff; }
+.inv-history-entry {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.45rem 1rem; border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+.inv-history-entry:last-child { border-bottom: none; }
+.inv-history-in      { background: #f0fdf4; }
+.inv-history-request { background: #fffdf0; }
+.inv-history-unknown { background: #fafafa; }
+.inv-history-time { color: var(--muted); font-size: 0.72rem; white-space: nowrap; min-width: 58px; }
+.inv-history-info { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.inv-history-name { font-weight: 600; color: var(--navy); }
+.inv-history-sku { font-size: 0.7rem; color: var(--muted); }
+.inv-history-cat { font-size: 0.7rem; background: var(--off); color: var(--muted); border-radius: 20px; padding: 0.05rem 0.5rem; }
+.inv-history-qty { font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 20px; white-space: nowrap; }
+
 .pg-topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
 .pg-search { border: 1.5px solid var(--border); border-radius: 7px; padding: 0.4rem 0.8rem; font-size: 0.85rem; min-width: 180px; }
 .pg-search:focus { border-color: var(--accent); outline: none; }

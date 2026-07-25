@@ -9,14 +9,84 @@ function availStatus(row) {
   return 'in'
 }
 
-// ── VIEW MODE ─────────────────────────────────────────────────────────────────
-function ViewMode({ rows }) {
-  const [filter, setFilter] = useState('all') // 'all' | 'in' | 'request'
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+}
 
-  // Sort: available first, then on-request, then unknown
+function formatTime(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+}
+
+// ── HISTORY VIEW ──────────────────────────────────────────────────────────────
+function HistoryView({ history }) {
+  // Group log entries by date (YYYY-MM-DD from the changed_at string)
+  const grouped = useMemo(() => {
+    const g = {}
+    history.forEach(entry => {
+      const day = entry.changed_at ? entry.changed_at.slice(0, 10) : 'Unknown'
+      if (!g[day]) g[day] = []
+      g[day].push(entry)
+    })
+    return g
+  }, [history])
+
+  const days = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
+
+  if (!days.length) {
+    return (
+      <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>
+        No inventory changes recorded yet. Updates made from the Edit tab will appear here.
+      </div>
+    )
+  }
+
+  return (
+    <div className="inv-history">
+      {days.map(day => (
+        <div key={day} className="inv-history-day">
+          <div className="inv-history-day-hdr">
+            📅 {formatDate(day + 'T00:00:00')}
+            <span>{grouped[day].length} update{grouped[day].length !== 1 ? 's' : ''}</span>
+          </div>
+          <div className="inv-history-entries">
+            {grouped[day].map(entry => {
+              const qty = entry.quantity
+              const st = qty === 0 ? 'request' : qty == null ? 'unknown' : 'in'
+              return (
+                <div key={entry.id} className={`inv-history-entry inv-history-${st}`}>
+                  <div className="inv-history-time">{formatTime(entry.changed_at)}</div>
+                  <div className="inv-history-info">
+                    <span className="inv-history-name">{entry.name}</span>
+                    {entry.sku && <span className="inv-history-sku">#{entry.sku}</span>}
+                    <span className="inv-history-cat">{entry.category}</span>
+                  </div>
+                  <div className={`inv-history-qty inv-badge-${st}`}>
+                    {qty == null
+                      ? '— cleared'
+                      : qty === 0
+                        ? '● On Request'
+                        : `● ${qty}${entry.unit ? ' ' + entry.unit : ''}`}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ── SNAPSHOT VIEW ─────────────────────────────────────────────────────────────
+function SnapshotView({ rows }) {
+  const [filter, setFilter] = useState('all')
+
   const sortRank = (r) => ({ in: 0, unknown: 1, request: 2 }[availStatus(r)] ?? 1)
 
-  // Group by category, sorted within each
   const grouped = useMemo(() => {
     const g = {}
     rows.forEach(r => {
@@ -31,8 +101,8 @@ function ViewMode({ rows }) {
   }, [rows])
 
   const counts = useMemo(() => ({
-    all: rows.length,
-    in:  rows.filter(r => availStatus(r) === 'in').length,
+    all:     rows.length,
+    in:      rows.filter(r => availStatus(r) === 'in').length,
     request: rows.filter(r => availStatus(r) === 'request').length,
     unknown: rows.filter(r => availStatus(r) === 'unknown').length,
   }), [rows])
@@ -41,7 +111,6 @@ function ViewMode({ rows }) {
 
   return (
     <div>
-      {/* Filter pills */}
       <div className="inv-filter-bar">
         <span className="inv-filter-label">Show:</span>
         {[
@@ -57,7 +126,6 @@ function ViewMode({ rows }) {
         ))}
       </div>
 
-      {/* Compact category grid */}
       {Object.entries(grouped).map(([cat, catRows]) => {
         const visible = catRows.filter(filterRow)
         if (!visible.length) return null
@@ -90,8 +158,34 @@ function ViewMode({ rows }) {
   )
 }
 
+// ── VIEW MODE (snapshot + history tabs) ───────────────────────────────────────
+function ViewMode({ rows, history }) {
+  const [tab, setTab] = useState('snapshot')
+
+  return (
+    <div>
+      <div className="inv-view-tabs">
+        <button
+          className={`inv-view-tab${tab === 'snapshot' ? ' active' : ''}`}
+          onClick={() => setTab('snapshot')}>
+          📦 Current Stock
+        </button>
+        <button
+          className={`inv-view-tab${tab === 'history' ? ' active' : ''}`}
+          onClick={() => setTab('history')}>
+          🕐 History {history.length > 0 && <span className="inv-history-count">({history.length})</span>}
+        </button>
+      </div>
+
+      {tab === 'snapshot'
+        ? <SnapshotView rows={rows} />
+        : <HistoryView history={history} />}
+    </div>
+  )
+}
+
 // ── EDIT MODE ─────────────────────────────────────────────────────────────────
-function EditMode({ rows, setRows }) {
+function EditMode({ rows, setRows, onHistoryEntry }) {
   const [saving, setSaving] = useState({})
   const [saved,  setSaved]  = useState({})
 
@@ -116,6 +210,20 @@ function EditMode({ rows, setRows }) {
         ? { ...r, availability: data.availability, _dirty: false } : r))
       setSaved(prev => ({ ...prev, [id]: true }))
       setTimeout(() => setSaved(prev => ({ ...prev, [id]: false })), 2000)
+      // Push a new history entry into local state so View > History updates live
+      if (onHistoryEntry) {
+        const inv = row.inventory === '' || row.inventory == null ? null : Number(row.inventory)
+        onHistoryEntry({
+          id: Date.now(),
+          product_id: id,
+          quantity: inv,
+          changed_at: new Date().toISOString().replace('T', ' ').slice(0, 19),
+          name: row.name,
+          sku: row.sku,
+          unit: row.unit,
+          category: row.category,
+        })
+      }
     } else {
       alert(data.error || 'Save failed')
     }
@@ -125,11 +233,9 @@ function EditMode({ rows, setRows }) {
     for (const row of rows.filter(r => r._dirty)) await saveRow(row.id)
   }
 
-  // Move a row up/down within its category and persist sort_order
   const moveRow = async (catRows, idx, dir) => {
     const j = idx + dir
     if (j < 0 || j >= catRows.length) return
-    // Swap the two rows in the global rows array
     const idA = catRows[idx].id
     const idB = catRows[j].id
     setRows(prev => {
@@ -139,7 +245,6 @@ function EditMode({ rows, setRows }) {
       ;[next[iA], next[iB]] = [next[iB], next[iA]]
       return next
     })
-    // Persist new sort_order based on swapped positions
     const updates = catRows.map((r, i) => {
       if (r.id === idA) return { id: idA, sort_order: j }
       if (r.id === idB) return { id: idB, sort_order: idx }
@@ -182,7 +287,6 @@ function EditMode({ rows, setRows }) {
               const justSaved = !!saved[row.id]
               return (
                 <div key={row.id} className={`inv-row${isDirty ? ' inv-row-dirty' : ''}`}>
-                  {/* Reorder arrows */}
                   <div className="inv-reorder">
                     <button className="inv-reorder-btn" onClick={() => moveRow(catRows, idx, -1)} disabled={idx === 0}>▲</button>
                     <button className="inv-reorder-btn" onClick={() => moveRow(catRows, idx, +1)} disabled={idx === catRows.length - 1}>▼</button>
@@ -216,10 +320,15 @@ function EditMode({ rows, setRows }) {
 }
 
 // ── MAIN PAGE ─────────────────────────────────────────────────────────────────
-export default function InventoryPage({ initialProducts }) {
-  const [rows, setRows] = useState(initialProducts)
-  const [mode, setMode] = useState('edit') // 'edit' | 'view'
+export default function InventoryPage({ initialProducts, initialHistory }) {
+  const [rows, setRows]       = useState(initialProducts)
+  const [history, setHistory] = useState(initialHistory)
+  const [mode, setMode]       = useState('edit')
   const dirtyCount = rows.filter(r => r._dirty).length
+
+  const addHistoryEntry = useCallback((entry) => {
+    setHistory(prev => [entry, ...prev])
+  }, [])
 
   return (
     <div className="admin-layout">
@@ -238,7 +347,6 @@ export default function InventoryPage({ initialProducts }) {
       </header>
 
       <div className="admin-content" style={{ maxWidth: 940, padding: '1.5rem' }}>
-        {/* Header */}
         <div className="inv-page-header">
           <div>
             <h2 className="admin-page-title" style={{ marginBottom: '0.15rem' }}>
@@ -252,10 +360,9 @@ export default function InventoryPage({ initialProducts }) {
             <p style={{ color: 'var(--muted)', fontSize: '0.82rem' }}>
               {mode === 'edit'
                 ? '0 = Available on Request  ·  Any number = Available  ·  Blank = not tracked'
-                : 'Read-only snapshot of current stock status'}
+                : 'Stock snapshot and full change history'}
             </p>
           </div>
-          {/* Mode toggle */}
           <div className="inv-mode-toggle">
             <button className={`inv-mode-btn${mode === 'view' ? ' active' : ''}`} onClick={() => setMode('view')}>
               👁 View
@@ -267,8 +374,8 @@ export default function InventoryPage({ initialProducts }) {
         </div>
 
         {mode === 'view'
-          ? <ViewMode rows={rows} />
-          : <EditMode rows={rows} setRows={setRows} />}
+          ? <ViewMode rows={rows} history={history} />
+          : <EditMode rows={rows} setRows={setRows} onHistoryEntry={addHistoryEntry} />}
       </div>
     </div>
   )
@@ -277,8 +384,9 @@ export default function InventoryPage({ initialProducts }) {
 export async function getServerSideProps({ req, res }) {
   const session = await getSession(req, res)
   if (!session?.admin) return { redirect: { destination: '/admin', permanent: false } }
-  const { getAllProductsAdmin } = require('../../lib/db')
-  const products = getAllProductsAdmin()
+  const { getAllProductsInventory, getInventoryHistory } = require('../../lib/db')
+  const products = getAllProductsInventory()
+  const history  = getInventoryHistory(500)
   return {
     props: {
       initialProducts: products.map(p => ({
@@ -286,6 +394,7 @@ export async function getServerSideProps({ req, res }) {
         inventory: p.inventory ?? '', availability: p.availability || 'in stock',
         unit: p.unit || '', _dirty: false,
       })),
+      initialHistory: history.map(h => ({ ...h })),
     },
   }
 }
