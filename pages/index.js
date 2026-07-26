@@ -175,10 +175,8 @@ export default function Home({ featured, categories, settings, heroImages }) {
 
       {/* Categories */}
       {categories.length > 0 && (
-        <section className="section" style={{ paddingBottom: '2rem' }}>
+        <section style={{ padding: '0.85rem 0 0.5rem' }}>
           <div className="container">
-            <h2 className="section-title">Product Categories</h2>
-            <p className="section-sub">Click a category to browse products</p>
             {/* Desktop: horizontal scroll row */}
             <div className="cat-card-row">
               {categories.map(c => (
@@ -201,7 +199,7 @@ export default function Home({ featured, categories, settings, heroImages }) {
 
       {/* Featured Products */}
       {featured.length > 0 && (
-        <section className="section" style={{ background: 'var(--off)', padding: '3rem 0' }}>
+        <section style={{ background: 'var(--off)', padding: '1.5rem 0 2rem' }}>
           <div className="container">
             <div className="home-products-header">
               <h2 className="section-title" style={{ marginBottom: 0 }}>Featured Products</h2>
