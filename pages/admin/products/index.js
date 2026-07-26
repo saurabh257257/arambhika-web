@@ -107,11 +107,10 @@ function SpecsEditor({ specs, onChange }) {
 }
 
 // ── Product Card ──────────────────────────────────────────────────────────────
-function ProductCard({ row, onUpdate, onSave, onDelete, onToggleHidden, onMoveUp, onMoveDown, isFirst, isLast, siteUrl, allCategories }) {
+function ProductCard({ row, onUpdate, onSave, onDelete, onToggleHidden, onToggleStatus, onMoveUp, onMoveDown, isFirst, isLast, siteUrl, allCategories }) {
   const f = (field, val) => onUpdate(row.id, { [field]: val, _dirty: true })
   const firstImg = row.images[0]
-  const invNum = row.inventory === '' || row.inventory == null ? null : Number(row.inventory)
-  const isOOS = invNum === 0
+  const isAvail = row.availability !== 'Available on Request'
 
   return (
     <div className={`ap-card${row._isNew ? ' ap-card-new' : ''}${row._open ? ' ap-card-open' : ''}${row.hidden ? ' ap-card-hidden' : ''}`}>
@@ -129,13 +128,6 @@ function ProductCard({ row, onUpdate, onSave, onDelete, onToggleHidden, onMoveUp
             {row.sku && <span className="ap-meta-tag">#{row.sku}</span>}
             {row.category && <span className="ap-meta-tag">{row.category}</span>}
             {row.price && <span className="ap-meta-tag">₹{row.price}/{row.unit || 'KG'}</span>}
-            {invNum != null ? (
-              <span className={`ap-meta-tag ${isOOS ? 'ap-oos' : 'ap-instock'}`}>
-                {isOOS ? '⚠ Out of Stock' : `✓ ${invNum} in stock`}
-              </span>
-            ) : (
-              <span className="ap-meta-tag" style={{ color: 'var(--muted)' }}>{row.availability}</span>
-            )}
           </div>
         </div>
         <div className="ap-summary-actions" onClick={e => e.stopPropagation()}>
@@ -146,6 +138,14 @@ function ProductCard({ row, onUpdate, onSave, onDelete, onToggleHidden, onMoveUp
           {!row._isNew && row.slug && (
             <a href={`${siteUrl}/store/${row.slug}`} target="_blank" rel="noopener noreferrer"
                className="ap-view-btn" title="View on site">↗</a>
+          )}
+          {!row._isNew && (
+            <button
+              className={`ap-status-btn${isAvail ? ' ap-status-avail' : ' ap-status-request'}`}
+              title="Toggle availability"
+              onClick={() => onToggleStatus(row.id, isAvail ? 'Available on Request' : 'in stock')}>
+              {isAvail ? '🟢 Available' : '🟡 On Request'}
+            </button>
           )}
           {!row._isNew && (
             <button
@@ -227,20 +227,6 @@ function ProductCard({ row, onUpdate, onSave, onDelete, onToggleHidden, onMoveUp
                   onChange={e => f('min_qty', e.target.value)} />
               </div>
               <div className="ap-field-group">
-                <label className="ap-label">Inventory (units available)</label>
-                <input className="ap-field" type="number" min="0" value={row.inventory ?? ''}
-                  placeholder="Leave blank = unlimited"
-                  onChange={e => f('inventory', e.target.value)} />
-                {isOOS && <p className="ap-oos-hint">⚠ Set to 0 → product shows as Out of Stock</p>}
-              </div>
-              <div className="ap-field-group">
-                <label className="ap-label">Availability</label>
-                <select className="ap-field ap-select" value={row.availability || 'in stock'} onChange={e => f('availability', e.target.value)}>
-                  <option value="in stock">Available</option>
-                  <option value="Available on Request">On Request</option>
-                </select>
-              </div>
-              <div className="ap-field-group">
                 <label className="ap-label">Condition</label>
                 <select className="ap-field ap-select" value={row.condition || 'new'} onChange={e => f('condition', e.target.value)}>
                   <option value="new">New</option>
@@ -300,7 +286,7 @@ function ProductCard({ row, onUpdate, onSave, onDelete, onToggleHidden, onMoveUp
 
 // ── Category Group ────────────────────────────────────────────────────────────
 function CatGroup({ cat, catRows, isFirst, isLast, onMoveUp, onMoveDown,
-                    onUpdateRow, onSaveRow, onDeleteRow, onToggleHidden,
+                    onUpdateRow, onSaveRow, onDeleteRow, onToggleHidden, onToggleStatus,
                     onMoveProductUp, onMoveProductDown, siteUrl, allCategories }) {
   const [collapsed, setCollapsed] = useState(false)
   const hiddenCount = catRows.filter(r => r.hidden).length
@@ -323,7 +309,7 @@ function CatGroup({ cat, catRows, isFirst, isLast, onMoveUp, onMoveDown,
       {!collapsed && catRows.map((row, idx) => (
         <ProductCard key={row.id} row={row} siteUrl={siteUrl} allCategories={allCategories}
           onUpdate={onUpdateRow} onSave={onSaveRow} onDelete={onDeleteRow}
-          onToggleHidden={onToggleHidden}
+          onToggleHidden={onToggleHidden} onToggleStatus={onToggleStatus}
           onMoveUp={() => onMoveProductUp(idx)}
           onMoveDown={() => onMoveProductDown(idx)}
           isFirst={idx === 0} isLast={idx === catRows.length - 1} />
@@ -404,6 +390,15 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
     })
   }
 
+  const toggleStatus = async (id, availability) => {
+    setRows(prev => prev.map(r => r.id === id ? { ...r, availability } : r))
+    await fetch('/api/admin/status', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, availability }),
+    })
+  }
+
   const addRow = () => {
     const tempId = newTempId()
     setRows(prev => [{
@@ -473,7 +468,6 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
         <nav className="admin-nav">
           <Link href="/admin">Dashboard</Link>
           <Link href="/admin/products" style={{ color: 'var(--accent)', fontWeight: 700 }}>Products</Link>
-          <Link href="/admin/productsinventory">Inventory</Link>
           <Link href="/admin/blogs">Blogs</Link>
           <Link href="/admin/categories">Categories</Link>
           <Link href="/admin/settings">Site Settings</Link>
@@ -501,9 +495,6 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
             </p>
           </div>
           <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            <Link href="/admin/productsinventory" className="inv-shortcut-btn">
-              📦 Update Inventory
-            </Link>
             <input className="pg-search" type="text" placeholder="Search products…"
               value={search} onChange={e => setSearch(e.target.value)} />
             <button className="btn btn-primary" onClick={addRow}>+ Add Product</button>
@@ -519,6 +510,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
             {newRows.map(row => (
               <ProductCard key={row.id} row={row} siteUrl={siteUrl} allCategories={catOrder}
                 onUpdate={updateRow} onSave={saveRow} onDelete={deleteRow}
+                onToggleStatus={toggleStatus}
                 onMoveUp={() => {}} onMoveDown={() => {}} isFirst isLast />
             ))}
           </div>
@@ -534,7 +526,7 @@ export default function AdminProducts({ initialProducts, initialCategoryOrder, s
               onMoveUp={() => moveCategoryUp(cat)}
               onMoveDown={() => moveCategoryDown(cat)}
               onUpdateRow={updateRow} onSaveRow={saveRow} onDeleteRow={deleteRow}
-              onToggleHidden={toggleHidden}
+              onToggleHidden={toggleHidden} onToggleStatus={toggleStatus}
               onMoveProductUp={(idx) => moveProductInCat(catRows, idx, -1)}
               onMoveProductDown={(idx) => moveProductInCat(catRows, idx, +1)}
               siteUrl={siteUrl} allCategories={catOrder} />

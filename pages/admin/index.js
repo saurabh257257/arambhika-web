@@ -61,7 +61,6 @@ export default function AdminDashboard({ isLoggedIn, error, stats }) {
         <nav className="admin-nav">
           <Link href="/admin">Dashboard</Link>
           <Link href="/admin/products">Products</Link>
-          <Link href="/admin/productsinventory">Inventory</Link>
           <Link href="/admin/blogs">Blogs</Link>
           <Link href="/admin/categories">Categories</Link>
           <Link href="/admin/settings">Site Settings</Link>
