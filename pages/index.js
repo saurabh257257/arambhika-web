@@ -3,25 +3,44 @@ import Layout from '../components/Layout'
 import { useState, useEffect, useRef } from 'react'
 
 function HeroCarousel({ images }) {
-  const [idx, setIdx] = useState(0)
+  const [pos, setPos]         = useState(0)
+  const [animate, setAnimate] = useState(true)
+
   useEffect(() => {
-    if (images.length < 2) return
-    const t = setInterval(() => setIdx(i => (i + 1) % images.length), 4000)
+    if (images.length <= 1) return
+    const t = setInterval(() => setPos(p => p + 1), 3000)
     return () => clearInterval(t)
   }, [images.length])
+
+  // Seamless loop: once we've advanced past the originals, jump back silently
+  useEffect(() => {
+    if (pos >= images.length) {
+      const id = setTimeout(() => {
+        setAnimate(false)
+        setPos(0)
+        requestAnimationFrame(() => requestAnimationFrame(() => setAnimate(true)))
+      }, 560)
+      return () => clearTimeout(id)
+    }
+  }, [pos, images.length])
+
   if (!images.length) return <div className="hero-carousel-empty" />
+
+  // Duplicate for seamless loop — add 2 clones at the end
+  const all = [...images, images[0], images.length > 1 ? images[1] : images[0]]
+
   return (
     <div className="hero-carousel">
-      {images.map((src, i) => (
-        <img key={i} src={src} alt={`Product showcase ${i + 1}`} className={i === idx ? 'active' : ''} />
-      ))}
-      {images.length > 1 && (
-        <div className="carousel-dots">
-          {images.map((_, i) => (
-            <span key={i} className={`carousel-dot${i === idx ? ' active' : ''}`} onClick={() => setIdx(i)} />
-          ))}
-        </div>
-      )}
+      <div
+        className="hero-carousel-track"
+        style={{
+          transform: `translateX(-${pos * 50}%)`,
+          transition: animate ? 'transform 0.55s ease-in-out' : 'none',
+        }}>
+        {all.map((src, i) => (
+          <img key={i} src={src} alt={`Product ${i + 1}`} className="hero-track-img" loading="lazy" />
+        ))}
+      </div>
     </div>
   )
 }
@@ -121,11 +140,7 @@ export default function Home({ featured, categories, settings, heroImages }) {
           <h1>{settings.hero_title || 'Nickel Strips & Copper Busbars for Battery Manufacturers'}</h1>
           <p>{settings.hero_subtitle || 'B2B EV Battery Component Manufacturer and distributor, Serving EV, ESS, and battery pack makers across India.'}</p>
           <div className="hero-actions">
-            <Link href="/store" className="btn btn-primary">{settings.hero_cta || 'Buy from Store'}</Link>
-            <a href={`https://wa.me/${WA}?text=Hi%2C%20I%20want%20to%20enquire%20about%20your%20products.`}
-              className="btn btn-wa" target="_blank" rel="noopener noreferrer">
-              WhatsApp Us
-            </a>
+            <Link href="/store" className="btn btn-primary">Visit Store</Link>
           </div>
         </div>
         <HeroCarousel images={heroImages} />
