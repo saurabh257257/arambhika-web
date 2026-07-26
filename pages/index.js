@@ -119,9 +119,9 @@ export default function Home({ featured, categories, settings, heroImages }) {
       <section className="hero">
         <div className="hero-content">
           <h1>{settings.hero_title || 'Nickel Strips & Copper Busbars for Battery Manufacturers'}</h1>
-          <p>{settings.hero_subtitle || 'Manufacturer and distributor based in Greater Noida. Serving EV, ESS, and battery pack makers across India.'}</p>
+          <p>{settings.hero_subtitle || 'B2B EV Battery Component Manufacturer and distributor, Serving EV, ESS, and battery pack makers across India.'}</p>
           <div className="hero-actions">
-            <Link href="/store" className="btn btn-primary">{settings.hero_cta || 'Browse Products'}</Link>
+            <Link href="/store" className="btn btn-primary">{settings.hero_cta || 'Buy from Store'}</Link>
             <a href={`https://wa.me/${WA}?text=Hi%2C%20I%20want%20to%20enquire%20about%20your%20products.`}
               className="btn btn-wa" target="_blank" rel="noopener noreferrer">
               WhatsApp Us
@@ -130,6 +130,33 @@ export default function Home({ featured, categories, settings, heroImages }) {
         </div>
         <HeroCarousel images={heroImages} />
       </section>
+
+      {/* Delivery banner */}
+      <div className="delivery-banner" aria-label="Delivery information">
+        <div className="delivery-banner-track">
+          <span>⚡ Same Day Delivery in NCR</span>
+          <span className="dbanner-sep">|</span>
+          <span>🚚 Same Day Dispatch for Other Locations</span>
+          <span className="dbanner-sep">|</span>
+          <span>🇮🇳 Pan India Shipping</span>
+          <span className="dbanner-sep">|</span>
+          <span>📦 Bulk Orders Welcome</span>
+          <span className="dbanner-sep">|</span>
+          <span>💬 WhatsApp Quote in 2 Hours</span>
+          <span className="dbanner-sep">|</span>
+          {/* duplicate for seamless loop */}
+          <span>⚡ Same Day Delivery in NCR</span>
+          <span className="dbanner-sep">|</span>
+          <span>🚚 Same Day Dispatch for Other Locations</span>
+          <span className="dbanner-sep">|</span>
+          <span>🇮🇳 Pan India Shipping</span>
+          <span className="dbanner-sep">|</span>
+          <span>📦 Bulk Orders Welcome</span>
+          <span className="dbanner-sep">|</span>
+          <span>💬 WhatsApp Quote in 2 Hours</span>
+          <span className="dbanner-sep">|</span>
+        </div>
+      </div>
 
       {/* Categories */}
       {categories.length > 0 && (
